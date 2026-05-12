@@ -211,6 +211,55 @@ export default function Home() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════
+            AIRLINE PARTNERS — Logo strip
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="bg-muted/20 dark:bg-muted/10 border-y px-4 md:px-6 py-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Our Airline Partners</p>
+            </div>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-4 items-center justify-items-center">
+              {[
+                { code: "SV", name: "Saudia", logo: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Saudia_Logo.svg" },
+                { code: "PK", name: "PIA", logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Pakistan_International_Airlines_logo.svg" },
+                { code: "EK", name: "Emirates", logo: "https://upload.wikimedia.org/wikipedia/en/4/4f/Emirates_logo.svg" },
+                { code: "QR", name: "Qatar Airways", logo: "https://upload.wikimedia.org/wikipedia/commons/7/79/Qatar_airways_logo.svg" },
+                { code: "EY", name: "Etihad", logo: "https://upload.wikimedia.org/wikipedia/commons/4/49/Etihad-airways-logo.svg" },
+                { code: "G9", name: "Air Arabia", logo: "https://upload.wikimedia.org/wikipedia/commons/b/b7/Air_Arabia_logo.svg" },
+                { code: "FZ", name: "flydubai", logo: "https://upload.wikimedia.org/wikipedia/commons/7/70/Flydubai_logo.svg" },
+                { code: "XY", name: "flynas", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Flynas_logo.svg" },
+              ].map(({ code, name, logo }) => (
+                <div
+                  key={code}
+                  className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-background hover:shadow-md transition-all duration-200 cursor-default w-full"
+                  title={name}
+                >
+                  <div className="h-10 flex items-center justify-center">
+                    <img
+                      src={logo}
+                      alt={name}
+                      className="max-h-10 max-w-[80px] object-contain grayscale group-hover:grayscale-0 transition-all duration-300 opacity-60 group-hover:opacity-100"
+                      onError={(e) => {
+                        const el = e.currentTarget;
+                        el.style.display = "none";
+                        const fallback = el.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = "flex";
+                      }}
+                    />
+                    <div
+                      className="hidden h-9 w-9 rounded-lg bg-muted items-center justify-center text-xs font-black text-muted-foreground"
+                    >
+                      {code}
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-semibold text-center leading-tight">{name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
             SERVICES — Cards with images
         ═══════════════════════════════════════════════════════════ */}
         <section className="bg-background px-4 md:px-6 py-14">
