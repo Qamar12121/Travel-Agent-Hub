@@ -45,9 +45,6 @@ export const RegisterBody = zod.object({
   email: zod.string(),
   password: zod.string(),
   role: zod.string(),
-  agencyName: zod.string().optional(),
-  phone: zod.string().optional(),
-  address: zod.string().optional(),
 });
 
 /**
@@ -102,6 +99,8 @@ export const ListPackagesResponseItem = zod.object({
   inclusions: zod.array(zod.string()),
   makkahNights: zod.number().nullish(),
   madinahNights: zod.number().nullish(),
+  makkahHotel: zod.string().nullish(),
+  madinahHotel: zod.string().nullish(),
   imageUrl: zod.string().nullish(),
 });
 export const ListPackagesResponse = zod.array(ListPackagesResponseItem);
@@ -129,6 +128,8 @@ export const GetPackageResponse = zod.object({
   inclusions: zod.array(zod.string()),
   makkahNights: zod.number().nullish(),
   madinahNights: zod.number().nullish(),
+  makkahHotel: zod.string().nullish(),
+  madinahHotel: zod.string().nullish(),
   imageUrl: zod.string().nullish(),
 });
 
@@ -400,6 +401,8 @@ export const ListBookingsResponseItem = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -503,6 +506,8 @@ export const GetBookingResponse = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -587,6 +592,8 @@ export const UpdateBookingResponse = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -666,6 +673,8 @@ export const HoldBookingResponse = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -745,6 +754,8 @@ export const ConfirmBookingResponse = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -824,6 +835,8 @@ export const CancelBookingResponse = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -1012,6 +1025,8 @@ export const GetRecentBookingsResponseItem = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),
@@ -1178,6 +1193,8 @@ export const GetAgentBookingsResponseItem = zod.object({
       inclusions: zod.array(zod.string()),
       makkahNights: zod.number().nullish(),
       madinahNights: zod.number().nullish(),
+      makkahHotel: zod.string().nullish(),
+      madinahHotel: zod.string().nullish(),
       imageUrl: zod.string().nullish(),
     })
     .optional(),

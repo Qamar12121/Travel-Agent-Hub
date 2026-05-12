@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plane, User, Phone, Mail, Clock, Printer, CheckCircle, XCircle } from "lucide-react";
+import { Plane, User, Phone, Mail, Clock, Printer, CheckCircle, XCircle, Hotel } from "lucide-react";
 
 function HoldCountdown({ expiresAt }: { expiresAt: string }) {
   const [remaining, setRemaining] = useState(Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)));
@@ -80,13 +80,20 @@ export default function BookingDetail() {
             <h1 className="text-2xl font-bold tracking-tight">Booking Details</h1>
             <p className="text-muted-foreground text-sm mt-1 font-mono">Ref: <span className="font-bold text-primary">{booking.bookingRef}</span></p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {statusBadge(booking.status)}
             <Link href={`/eticket/${booking.id}`}>
               <Button variant="outline" data-testid="button-print-eticket">
                 <Printer className="h-4 w-4 mr-2" />E-Ticket
               </Button>
             </Link>
+            {booking.package && (
+              <Link href={`/hotel-voucher/${booking.id}`}>
+                <Button variant="outline" data-testid="button-hotel-voucher">
+                  <Hotel className="h-4 w-4 mr-2" />Hotel Voucher
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -197,6 +204,13 @@ export default function BookingDetail() {
               <Printer className="h-4 w-4 mr-2" />View E-Ticket
             </Button>
           </Link>
+          {booking.package && (
+            <Link href={`/hotel-voucher/${booking.id}`}>
+              <Button variant="outline" data-testid="button-hotel-voucher-2">
+                <Hotel className="h-4 w-4 mr-2" />Hotel Voucher
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </Layout>

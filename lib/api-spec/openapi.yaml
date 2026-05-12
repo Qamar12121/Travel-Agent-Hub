@@ -823,6 +823,10 @@ components:
           type: ["integer", "null"]
         madinahNights:
           type: ["integer", "null"]
+        makkahHotel:
+          type: ["string", "null"]
+        madinahHotel:
+          type: ["string", "null"]
         imageUrl:
           type: ["string", "null"]
 

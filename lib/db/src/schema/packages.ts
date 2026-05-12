@@ -18,6 +18,8 @@ export const packagesTable = pgTable("packages", {
   inclusions: jsonb("inclusions").notNull().default([]),
   makkahNights: integer("makkah_nights"),
   madinahNights: integer("madinah_nights"),
+  makkahHotel: text("makkah_hotel"),
+  madinahHotel: text("madinah_hotel"),
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

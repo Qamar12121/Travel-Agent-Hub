@@ -23,6 +23,8 @@ function formatPackage(p: typeof packagesTable.$inferSelect) {
     inclusions: Array.isArray(p.inclusions) ? p.inclusions : [],
     makkahNights: p.makkahNights ?? null,
     madinahNights: p.madinahNights ?? null,
+    makkahHotel: p.makkahHotel ?? null,
+    madinahHotel: p.madinahHotel ?? null,
     imageUrl: p.imageUrl ?? null,
   };
 }

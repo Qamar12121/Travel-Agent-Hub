@@ -26,5 +26,9 @@ export interface Package {
   /** @nullable */
   madinahNights?: number | null;
   /** @nullable */
+  makkahHotel?: string | null;
+  /** @nullable */
+  madinahHotel?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
 }

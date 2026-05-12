@@ -18,6 +18,7 @@ import { FlightDetail } from "@/pages/FlightDetail";
 import Bookings from "@/pages/Bookings";
 import BookingDetail from "@/pages/BookingDetail";
 import ETicket from "@/pages/ETicket";
+import HotelVoucher from "@/pages/HotelVoucher";
 import Banks from "@/pages/Banks";
 import Ledger from "@/pages/Ledger";
 import AgentDashboard from "@/pages/AgentDashboard";
@@ -72,8 +73,9 @@ function Router() {
       <Route path="/bookings" component={Bookings} />
       <Route path="/bookings/:id" component={BookingDetail} />
 
-      {/* E-Ticket */}
+      {/* E-Ticket & Hotel Voucher */}
       <Route path="/eticket/:bookingId" component={ETicket} />
+      <Route path="/hotel-voucher/:bookingId" component={HotelVoucher} />
 
       {/* Finance */}
       <Route path="/banks" component={Banks} />
