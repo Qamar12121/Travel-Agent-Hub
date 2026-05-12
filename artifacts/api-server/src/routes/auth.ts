@@ -49,13 +49,18 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const { name, email, password, role } = parsed.data;
+  const { name, email, password, role, agencyName, phone, address } = parsed.data;
   const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
   if (existing.length > 0) {
     res.status(400).json({ error: "Email already registered" });
     return;
   }
-  const [user] = await db.insert(usersTable).values({ name, email, password, role: role || "customer" }).returning();
+  const [user] = await db.insert(usersTable).values({
+    name, email, password, role: role || "customer",
+    agencyName: agencyName ?? null,
+    phone: phone ?? null,
+    address: address ?? null,
+  }).returning();
   const token = makeToken(user.id, user.role);
   res.status(201).json({ token, user: formatUser(user) });
 });

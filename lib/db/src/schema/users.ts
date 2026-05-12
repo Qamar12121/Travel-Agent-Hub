@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
   role: text("role").notNull().default("customer"),
   agencyName: text("agency_name"),
   phone: text("phone"),
+  address: text("address"),
   balance: numeric("balance", { precision: 12, scale: 2 }).default("0"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

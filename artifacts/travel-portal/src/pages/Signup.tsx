@@ -8,8 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plane, Eye, EyeOff, User, Briefcase, CheckCircle, MessageCircle, Phone } from "lucide-react";
+import { Plane, Eye, EyeOff, User, Briefcase, CheckCircle, MessageCircle, Phone, MapPin, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const signupSchema = z.object({
@@ -17,6 +16,9 @@ const signupSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.string().min(1, "Please select an account type"),
+  phone: z.string().optional(),
+  agencyName: z.string().optional(),
+  address: z.string().optional(),
 });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
@@ -31,12 +33,12 @@ export default function Signup() {
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: "", email: "", password: "", role: "customer" },
+    defaultValues: { name: "", email: "", password: "", role: "customer", phone: "", agencyName: "", address: "" },
   });
 
   const onSubmit = (data: SignupFormValues) => {
     registerMutation.mutate(
-      { data },
+      { data: { ...data, role: selectedRole } },
       {
         onSuccess: (res) => {
           setAuth(res.token, res.user);
@@ -49,6 +51,8 @@ export default function Signup() {
       }
     );
   };
+
+  const isAgent = selectedRole === "agent";
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -65,6 +69,9 @@ export default function Signup() {
             <h1 className="text-3xl font-black mb-1">Bin Yasin Travels</h1>
             <div className="text-[#f5c842]/60 text-xl" style={{ fontFamily: "Georgia, serif" }}>بن یاسین ٹریولز</div>
           </div>
+          <div className="text-xl text-[#f5c842]" style={{ fontFamily: "Georgia, serif" }}>
+            لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ
+          </div>
           <div className="space-y-3">
             {[
               "Access exclusive Umrah packages",
@@ -76,6 +83,14 @@ export default function Signup() {
               <div key={item} className="flex items-center gap-3 text-sm text-white/70">
                 <CheckCircle className="h-4 w-4 text-[#f5c842] flex-shrink-0" />
                 {item}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-4 pt-2">
+            {[["5000+", "Pilgrims"], ["15+", "Years"], ["99%", "Satisfaction"]].map(([v, l]) => (
+              <div key={l} className="text-center">
+                <div className="text-xl font-black text-[#f5c842]">{v}</div>
+                <div className="text-xs text-white/50 mt-0.5">{l}</div>
               </div>
             ))}
           </div>
@@ -91,8 +106,8 @@ export default function Signup() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md space-y-7">
+      <div className="flex-1 flex items-start justify-center p-6 overflow-y-auto">
+        <div className="w-full max-w-md space-y-6 py-6">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 justify-center mb-2">
             <div className="h-10 w-10 bg-[#0d1b3e] rounded-xl flex items-center justify-center">
@@ -104,7 +119,7 @@ export default function Signup() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <h2 className="text-2xl font-black tracking-tight">Create your account</h2>
             <p className="text-muted-foreground text-sm">Join thousands of pilgrims and agents on Bin Yasin Travels</p>
           </div>
@@ -121,8 +136,8 @@ export default function Signup() {
                 onClick={() => { setSelectedRole(value); form.setValue("role", value); }}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   selectedRole === value
-                    ? "border-[#0d1b3e] bg-[#0d1b3e]/5 dark:bg-[#0d1b3e]/30"
-                    : "border-border hover:border-[#0d1b3e]/40"
+                    ? "border-[#0d1b3e] bg-[#0d1b3e]/5 dark:border-[#f5c842] dark:bg-[#f5c842]/10"
+                    : "border-border hover:border-[#0d1b3e]/40 dark:hover:border-[#f5c842]/40"
                 }`}
               >
                 <Icon className={`h-5 w-5 mb-2 ${selectedRole === value ? "text-[#0d1b3e] dark:text-[#f5c842]" : "text-muted-foreground"}`} />
@@ -133,65 +148,124 @@ export default function Signup() {
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="font-semibold text-sm">Full Name</Label>
-              <Input
-                id="name"
-                placeholder="Muhammad Ahmed"
-                {...form.register("name")}
-                className="h-11 border-border/60 focus-visible:ring-[#0d1b3e]"
-                data-testid="input-name"
-              />
-              {form.formState.errors.name && (
-                <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="font-semibold text-sm">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...form.register("email")}
-                className="h-11 border-border/60 focus-visible:ring-[#0d1b3e]"
-                data-testid="input-email"
-              />
-              {form.formState.errors.email && (
-                <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
-              )}
-            </div>
+            {/* ─── PERSONAL DETAILS ─── */}
+            <div className="space-y-1">
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Personal Information</div>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name" className="font-semibold text-sm">Full Name *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Muhammad Ahmed"
+                    {...form.register("name")}
+                    className="h-10 border-border/60 focus-visible:ring-[#0d1b3e] dark:focus-visible:ring-[#f5c842]"
+                    data-testid="input-name"
+                  />
+                  {form.formState.errors.name && (
+                    <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="font-semibold text-sm">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="At least 6 characters"
-                  {...form.register("password")}
-                  className="h-11 pr-10 border-border/60 focus-visible:ring-[#0d1b3e]"
-                  data-testid="input-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="font-semibold text-sm">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+92-300-123-4567"
+                      {...form.register("phone")}
+                      className="h-10 pl-9 border-border/60 focus-visible:ring-[#0d1b3e] dark:focus-visible:ring-[#f5c842]"
+                    />
+                  </div>
+                </div>
               </div>
-              {form.formState.errors.password && (
-                <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
-              )}
             </div>
 
-            {/* Hidden role input synced to selectedRole */}
+            {/* ─── AGENT DETAILS (conditional) ─── */}
+            {isAgent && (
+              <div className="space-y-3 p-4 rounded-xl border border-dashed border-[#0d1b3e]/30 dark:border-[#f5c842]/30 bg-[#0d1b3e]/3 dark:bg-[#f5c842]/5">
+                <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Agency Information</div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="agencyName" className="font-semibold text-sm">Travel Agency Name *</Label>
+                  <div className="relative">
+                    <Building2 className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    <Input
+                      id="agencyName"
+                      placeholder="Al-Noor Travel Agency"
+                      {...form.register("agencyName")}
+                      className="h-10 pl-9 border-border/60 focus-visible:ring-[#0d1b3e] dark:focus-visible:ring-[#f5c842]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="address" className="font-semibold text-sm">Complete Office Address *</Label>
+                  <div className="relative">
+                    <MapPin className="h-4 w-4 absolute left-3 top-3 text-muted-foreground pointer-events-none" />
+                    <textarea
+                      id="address"
+                      placeholder="Shop #5, Plaza Name, Main Road, City, Province — Pakistan"
+                      {...form.register("address")}
+                      rows={3}
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-border/60 rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-[#0d1b3e] dark:focus:ring-[#f5c842] resize-none placeholder:text-muted-foreground"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── ACCOUNT DETAILS ─── */}
+            <div className="space-y-3">
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Account Details</div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="font-semibold text-sm">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  {...form.register("email")}
+                  className="h-10 border-border/60 focus-visible:ring-[#0d1b3e] dark:focus-visible:ring-[#f5c842]"
+                  data-testid="input-email"
+                />
+                {form.formState.errors.email && (
+                  <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="font-semibold text-sm">Password *</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="At least 6 characters"
+                    {...form.register("password")}
+                    className="h-10 pr-10 border-border/60 focus-visible:ring-[#0d1b3e] dark:focus-visible:ring-[#f5c842]"
+                    data-testid="input-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {form.formState.errors.password && (
+                  <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
+                )}
+              </div>
+            </div>
+
             <input type="hidden" {...form.register("role")} value={selectedRole} />
 
             <Button
               type="submit"
-              className="w-full h-11 bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white font-bold text-base"
+              className="w-full h-11 bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white font-bold text-base mt-2"
               disabled={registerMutation.isPending}
               data-testid="button-signup"
             >
@@ -201,7 +275,7 @@ export default function Signup() {
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#0d1b3e] dark:text-primary font-semibold hover:underline">
+            <Link href="/login" className="text-[#0d1b3e] dark:text-[#f5c842] font-semibold hover:underline">
               Sign in
             </Link>
           </p>
