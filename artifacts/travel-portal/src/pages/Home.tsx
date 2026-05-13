@@ -1,7 +1,9 @@
-import { Link } from "wouter";
+import { useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/Layout";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Plane, Star, ShieldCheck, Clock, Phone, Mail, MapPin,
   Facebook, Instagram, MessageCircle, Users, Award, Heart,
@@ -90,6 +92,17 @@ const SOCIAL = [
 ];
 
 export default function Home() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      setLocation("/dashboard");
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading || isAuthenticated) return null;
+
   return (
     <Layout>
       <div className="flex flex-col -mt-4 -mx-4 md:-mx-6">

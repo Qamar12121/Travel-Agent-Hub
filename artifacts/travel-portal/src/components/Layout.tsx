@@ -122,9 +122,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             )}
 
             <nav className="flex-1 overflow-auto grid gap-0.5 p-3 text-sm font-medium">
-              {/* Home link */}
+              {/* Home link — goes to dashboard when logged in */}
               <Link
-                href="/"
+                href={user ? "/dashboard" : "/"}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
               >
@@ -159,7 +159,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Sheet>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 mr-2 group">
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2.5 mr-2 group">
           <div className="h-8 w-8 bg-[#f5c842] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:bg-[#e5b832] transition-colors">
             <Plane className="h-4 w-4 text-[#0d1b3e]" />
           </div>
@@ -172,7 +172,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Desktop nav quick links */}
         <nav className="hidden lg:flex items-center gap-0.5 flex-1">
           {[
-            { href: "/", label: "Home" },
+            { href: user ? "/dashboard" : "/", label: "Home" },
             { href: "/umrah-packages", label: "Umrah Packages" },
             { href: "/ksa-groups", label: "KSA One Way" },
             { href: "/uae-groups", label: "UAE One Way" },
