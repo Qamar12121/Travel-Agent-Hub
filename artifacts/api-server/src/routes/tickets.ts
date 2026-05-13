@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, bookingsTable, flightGroupsTable } from "@workspace/db";
+import { db, bookingsTable, flightGroupsTable, packagesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetTicketParams } from "@workspace/api-zod";
 
@@ -32,10 +32,10 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
     flightNumber: "N/A",
     airline: "N/A",
     airlineCode: "N/A",
-    origin: "N/A",
-    originCode: "N/A",
-    destination: "N/A",
-    destinationCode: "N/A",
+    origin: "Multan",
+    originCode: "MUX",
+    destination: "Jeddah",
+    destinationCode: "JED",
     departureDate: "N/A",
     departureTime: "N/A",
     arrivalTime: "N/A",
@@ -43,6 +43,19 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
     baggage: "23 KG",
     pnr: booking.bookingRef,
   };
+
+  let returnFlight: null | {
+    flightNumber: string;
+    origin: string;
+    originCode: string;
+    destination: string;
+    destinationCode: string;
+    departureDate: string;
+    departureTime: string;
+    arrivalTime: string;
+    class: string;
+    baggage: string;
+  } = null;
 
   if (booking.flightGroupId) {
     const [fg] = await db.select().from(flightGroupsTable).where(eq(flightGroupsTable.id, booking.flightGroupId));
@@ -65,16 +78,77 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
     }
   }
 
+  if (booking.packageId) {
+    const [pkg] = await db.select().from(packagesTable).where(eq(packagesTable.id, booking.packageId));
+    if (pkg) {
+      const airlineCode = pkg.airline.substring(0, 2).toUpperCase();
+      flightData = {
+        flightNumber: `${airlineCode}-001`,
+        airline: pkg.airline,
+        airlineCode,
+        origin: "Multan",
+        originCode: "MUX",
+        destination: "Jeddah",
+        destinationCode: "JED",
+        departureDate: pkg.departureDate,
+        departureTime: "07:00",
+        arrivalTime: "10:30",
+        class: "Economy",
+        baggage: "30 KG",
+        pnr: booking.bookingRef,
+      };
+      returnFlight = {
+        flightNumber: `${airlineCode}-002`,
+        origin: "Jeddah",
+        originCode: "JED",
+        destination: "Multan",
+        destinationCode: "MUX",
+        departureDate: pkg.returnDate,
+        departureTime: "12:00",
+        arrivalTime: "15:30",
+        class: "Economy",
+        baggage: "30 KG",
+      };
+    }
+  }
+
   const passengers = Array.isArray(booking.passengersInfo) ? booking.passengersInfo : [];
   const firstPassenger = passengers[0] as Record<string, string> | undefined;
 
+  const passengerDetails = passengers.map((p, idx) => {
+    const pass = p as Record<string, string>;
+    return {
+      sr: idx + 1,
+      name: `${pass.firstName ?? ""} ${pass.lastName ?? ""}`.trim() || "Passenger",
+      passportNumber: pass.passportNumber ?? "N/A",
+      ticketNumber: generateTicketNumber(),
+      seat: generateSeat(),
+      nationality: pass.nationality ?? "N/A",
+      dateOfBirth: pass.dateOfBirth ?? "N/A",
+    };
+  });
+
+  if (passengerDetails.length === 0) {
+    passengerDetails.push({
+      sr: 1,
+      name: "Passenger",
+      passportNumber: "N/A",
+      ticketNumber: generateTicketNumber(),
+      seat: generateSeat(),
+      nationality: "N/A",
+      dateOfBirth: "N/A",
+    });
+  }
+
   res.json({
-    ticketNumber: generateTicketNumber(),
+    ticketNumber: passengerDetails[0].ticketNumber,
     bookingRef: booking.bookingRef,
     passengerName: firstPassenger ? `${firstPassenger.firstName} ${firstPassenger.lastName}` : "Passenger",
     passportNumber: firstPassenger?.passportNumber ?? "N/A",
+    passengers: passengerDetails,
+    returnFlight,
     ...flightData,
-    seat: generateSeat(),
+    seat: passengerDetails[0].seat,
     status: booking.status,
     issuedAt: new Date().toISOString(),
     barcode: Math.random().toString(36).substring(2, 20).toUpperCase(),

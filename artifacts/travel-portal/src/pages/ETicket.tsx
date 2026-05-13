@@ -261,17 +261,26 @@ export default function ETicket() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-200">
-                <td className="px-3 py-3 font-bold text-[14px]">1</td>
-                <td className="px-3 py-3 font-bold text-[14px] uppercase">{ticket.passengerName}</td>
-                <td className="px-3 py-3 font-semibold text-[14px] font-mono">{ticket.passportNumber}</td>
-                <td className="px-3 py-3 font-semibold text-[14px] font-mono">
-                  {ticket.ticketNumber || "—"}
-                </td>
-                <td className="px-3 py-3 font-semibold text-[14px]">
-                  {ticket.seat || "ANY SEAT"}
-                </td>
-              </tr>
+              {((ticket as any).passengers as Array<{sr: number; name: string; passportNumber: string; ticketNumber: string; seat: string}> | undefined)?.length
+                ? (ticket as any).passengers.map((p: {sr: number; name: string; passportNumber: string; ticketNumber: string; seat: string}) => (
+                  <tr key={p.sr} className={`border-b border-gray-200 ${p.sr % 2 === 0 ? "bg-gray-50" : ""}`}>
+                    <td className="px-3 py-3 font-bold text-[14px]">{p.sr}</td>
+                    <td className="px-3 py-3 font-bold text-[14px] uppercase">{p.name}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px] font-mono">{p.passportNumber}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px] font-mono">{p.ticketNumber || "—"}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px]">{p.seat || "ANY SEAT"}</td>
+                  </tr>
+                ))
+                : (
+                  <tr className="border-b border-gray-200">
+                    <td className="px-3 py-3 font-bold text-[14px]">1</td>
+                    <td className="px-3 py-3 font-bold text-[14px] uppercase">{ticket.passengerName}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px] font-mono">{ticket.passportNumber}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px] font-mono">{ticket.ticketNumber || "—"}</td>
+                    <td className="px-3 py-3 font-semibold text-[14px]">{ticket.seat || "ANY SEAT"}</td>
+                  </tr>
+                )
+              }
             </tbody>
           </table>
 
@@ -281,11 +290,21 @@ export default function ETicket() {
           </div>
 
           {/* Route display */}
-          <div className="flex items-center gap-4 text-[22px] font-black text-gray-800 my-4">
-            <span>{ticket.origin} ({ticket.originCode})</span>
-            <span style={{ color: col, fontSize: 32 }}>✈</span>
-            <span>{ticket.destination} ({ticket.destinationCode})</span>
-          </div>
+          {(ticket as any).returnFlight ? (
+            <div className="flex items-center gap-4 text-[22px] font-black text-gray-800 my-4">
+              <span>{ticket.originCode}</span>
+              <span style={{ color: col, fontSize: 28 }}>✈</span>
+              <span>{ticket.destinationCode}</span>
+              <span style={{ color: col, fontSize: 28 }}>✈</span>
+              <span>{ticket.originCode}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 text-[22px] font-black text-gray-800 my-4">
+              <span>{ticket.origin} ({ticket.originCode})</span>
+              <span style={{ color: col, fontSize: 32 }}>✈</span>
+              <span>{ticket.destination} ({ticket.destinationCode})</span>
+            </div>
+          )}
 
           {/* Flight table */}
           <table className="w-full border-collapse mb-6 text-sm">
@@ -297,6 +316,7 @@ export default function ETicket() {
               </tr>
             </thead>
             <tbody>
+              {/* Outbound flight */}
               <tr className="border-b border-gray-200">
                 <td className="px-3 py-3 font-bold text-[13px] whitespace-nowrap">{ticket.departureDate}</td>
                 <td className="px-3 py-3 font-semibold text-[13px] whitespace-nowrap">
@@ -320,6 +340,35 @@ export default function ETicket() {
                   </span>
                 </td>
               </tr>
+              {/* Return flight (Umrah packages only) */}
+              {(ticket as any).returnFlight && (() => {
+                const rf = (ticket as any).returnFlight;
+                return (
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <td className="px-3 py-3 font-bold text-[13px] whitespace-nowrap">{rf.departureDate}</td>
+                    <td className="px-3 py-3 font-semibold text-[13px] whitespace-nowrap">
+                      {rf.originCode} – {rf.destinationCode}
+                    </td>
+                    <td className="px-3 py-3 font-bold text-[13px]">{rf.flightNumber}</td>
+                    <td className="px-3 py-3 font-semibold text-[13px] whitespace-nowrap">
+                      {rf.departureTime} — {rf.arrivalTime}
+                    </td>
+                    <td className="px-3 py-3 font-semibold text-[13px]">YES</td>
+                    <td className="px-3 py-3 font-semibold text-[13px]">{rf.baggage || "1 PC × 30 KG"}</td>
+                    <td className="px-3 py-3 font-semibold text-[13px] uppercase">{rf.class || "ECONOMY"}</td>
+                    <td className="px-3 py-3">
+                      <span
+                        className="text-white text-[12px] font-bold px-3 py-1.5 rounded"
+                        style={{
+                          backgroundColor: isConfirmed ? "#0a8f45" : isHold ? "#d97706" : "#dc2626",
+                        }}
+                      >
+                        {isConfirmed ? "CONFIRMED" : isHold ? "ON HOLD" : "CANCELLED"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
 

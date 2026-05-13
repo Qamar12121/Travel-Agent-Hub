@@ -8,8 +8,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
 import {
-  Plane, Users, TrendingUp, Clock, CheckCircle, XCircle,
-  DollarSign, Briefcase, ArrowRight, Star, Gem,
+  Plane, Users, Clock, CheckCircle, XCircle,
+  Briefcase, ArrowRight, Star, Gem,
   Building, CreditCard, BookOpen,
 } from "lucide-react";
 
@@ -142,9 +142,9 @@ export default function Dashboard() {
                 Live
               </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               {statsLoading ? (
-                Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)
+                Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)
               ) : (
                 <>
                   <StatCard title="Total Bookings" value={fmt(stats?.totalBookings ?? 0)} icon={Plane}
@@ -155,12 +155,6 @@ export default function Dashboard() {
                     gradient="bg-gradient-to-br from-amber-600 to-amber-400" subtext="2hr hold active" />
                   <StatCard title="Cancelled" value={fmt(stats?.cancelledBookings ?? 0)} icon={XCircle}
                     gradient="bg-gradient-to-br from-red-700 to-red-500" subtext="Refund eligible" />
-                  <StatCard title="Total Revenue" value={`PKR ${fmt(stats?.totalRevenue ?? 0)}`} icon={DollarSign}
-                    gradient="bg-gradient-to-br from-violet-700 to-violet-500" subtext="All-time earnings" />
-                  <StatCard title="Monthly Revenue" value={`PKR ${fmt(stats?.monthlyRevenue ?? 0)}`} icon={TrendingUp}
-                    gradient="bg-gradient-to-br from-cyan-700 to-cyan-500" subtext="This month" trend="↑ Live" />
-                  <StatCard title="Total Passengers" value={fmt(stats?.totalPassengers ?? 0)} icon={Users}
-                    gradient="bg-gradient-to-br from-teal-700 to-teal-500" subtext="Pilgrims served" />
                   <StatCard title="Pending Amount" value={`PKR ${fmt(stats?.pendingAmount ?? 0)}`} icon={CreditCard}
                     gradient="bg-gradient-to-br from-orange-600 to-orange-400" subtext="Awaiting payment" />
                 </>

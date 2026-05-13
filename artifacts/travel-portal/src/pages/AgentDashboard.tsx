@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/AuthContext";
-import { Plane, CheckCircle, Clock, XCircle, DollarSign, User } from "lucide-react";
+import { Plane, CheckCircle, Clock, XCircle, User } from "lucide-react";
 
 function statusBadge(status: string) {
   const map: Record<string, string> = { confirmed: "bg-green-100 text-green-800", on_hold: "bg-amber-100 text-amber-800", cancelled: "bg-red-100 text-red-800", pending: "bg-blue-100 text-blue-800" };
@@ -42,15 +42,14 @@ export default function AgentDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {statsLoading ? Array.from({length:6}).map((_,i)=><Skeleton key={i} className="h-20"/>) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {statsLoading ? Array.from({length:4}).map((_,i)=><Skeleton key={i} className="h-20"/>) : (
             <>
               {[
                 { label: "Total Bookings", value: stats?.totalBookings ?? 0, icon: Plane, color: "#1a2e5a" },
                 { label: "Confirmed", value: stats?.confirmedBookings ?? 0, icon: CheckCircle, color: "#16a34a" },
                 { label: "On Hold", value: stats?.onHoldBookings ?? 0, icon: Clock, color: "#d97706" },
                 { label: "Cancelled", value: stats?.cancelledBookings ?? 0, icon: XCircle, color: "#dc2626" },
-                { label: "Total Revenue", value: fmt(stats?.totalRevenue ?? 0), icon: DollarSign, color: "#7c3aed", wide: true },
               ].map(({ label, value, icon: Icon, color }) => (
                 <Card key={label} className="border-l-4" style={{ borderLeftColor: color }}>
                   <CardHeader className="pb-1 pt-3 px-3">

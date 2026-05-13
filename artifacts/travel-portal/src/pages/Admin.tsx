@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Users, Plane, Package, BarChart3, TrendingUp, Shield, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
+import { Users, Plane, Package, BarChart3, Shield, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
 
 function statusBadge(status: string) {
   const map: Record<string, string> = {
@@ -415,13 +415,12 @@ export default function Admin() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {statsLoading ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20" />) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {statsLoading ? Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20" />) : (
             [
               { label: "Total Users", value: adminStats?.totalUsers ?? 0, icon: Users, color: "#1a2e5a" },
               { label: "Agents", value: adminStats?.totalAgents ?? 0, icon: Users, color: "#7c3aed" },
               { label: "Total Bookings", value: adminStats?.totalBookings ?? 0, icon: Package, color: "#0891b2" },
-              { label: "Revenue", value: fmt(adminStats?.totalRevenue ?? 0), icon: TrendingUp, color: "#16a34a" },
               { label: "Active Flights", value: adminStats?.activeFlights ?? 0, icon: Plane, color: "#d97706" },
               { label: "Packages", value: adminStats?.activePackages ?? 0, icon: Package, color: "#dc2626" },
             ].map(({ label, value, icon: Icon, color }) => (
