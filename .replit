@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "bash", "postgresql-16"]
+modules = ["nodejs-20", "web", "bash"]
 
 [deployment]
 router = "application"
@@ -33,7 +33,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
+args = "cd artifacts/api-server && PORT=8080 pnpm run dev"
 waitForPort = 8080
 
 [[workflows.workflow]]
@@ -45,8 +45,8 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=25433 BASE_PATH=/ pnpm --filter @workspace/travel-portal run dev"
-waitForPort = 25433
+args = "cd artifacts/travel-portal && PORT=5000 BASE_PATH=/ pnpm run dev"
+waitForPort = 5000
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -60,13 +60,20 @@ timeoutMs = 20000
 channel = "stable-25_05"
 
 [[ports]]
-localPort = 8080
+localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8081
-externalPort = 8081
+localPort = 8080
+externalPort = 8080
 
 [[ports]]
 localPort = 25433
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+PORT = "5000"
+BASE_PATH = "/"
+NODE_ENV = "development"
