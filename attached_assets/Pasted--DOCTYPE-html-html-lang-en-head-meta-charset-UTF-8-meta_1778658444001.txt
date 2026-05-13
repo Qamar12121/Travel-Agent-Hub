@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hotel Voucher</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body{
+        background:#f2f2f2;
+        padding:20px;
+    }
+
+    .voucher{
+        width:1000px;
+        margin:auto;
+        background:#fff;
+        border:2px solid #000;
+        padding:20px;
+    }
+
+    .top-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        margin-bottom:20px;
+    }
+
+    .company h2{
+        color:#0b2c6b;
+        font-size:24px;
+        margin-bottom:5px;
+    }
+
+    .company p{
+        margin:3px 0;
+        font-size:14px;
+    }
+
+    .logo{
+        text-align:center;
+    }
+
+    .logo img{
+        width:80px;
+    }
+
+    .title{
+        text-align:center;
+        font-size:22px;
+        font-weight:bold;
+        margin:20px 0;
+        border:1px solid #000;
+        padding:10px;
+        background:#f7f7f7;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-bottom:20px;
+    }
+
+    table th,
+    table td{
+        border:1px solid #000;
+        padding:8px;
+        font-size:13px;
+    }
+
+    table th{
+        background:#ececec;
+    }
+
+    .section-title{
+        background:#d9d9d9;
+        padding:10px;
+        font-weight:bold;
+        text-align:center;
+        border:1px solid #000;
+        margin-top:15px;
+    }
+
+    .footer-box{
+        border:1px solid #000;
+        padding:15px;
+        margin-top:20px;
+    }
+
+    .instruction{
+        font-size:14px;
+        line-height:1.7;
+        margin-top:15px;
+    }
+
+    .qr{
+        width:120px;
+    }
+
+    .flex{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .badge{
+        background:green;
+        color:#fff;
+        padding:5px 12px;
+        display:inline-block;
+        margin-top:10px;
+        border-radius:4px;
+        font-size:12px;
+    }
+
+    @media print{
+        body{
+            background:#fff;
+        }
+
+        .voucher{
+            border:none;
+            width:100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="voucher">
+
+    <!-- HEADER -->
+    <div class="top-header">
+
+        <div class="company">
+            <h2>BIN YASIN TRAVELS & TOURS</h2>
+            <p><strong>Voucher Date:</strong> 21/02/2026</p>
+            <p><strong>Package:</strong> 20 Standard</p>
+            <p><strong>PAX:</strong> 2 Adults</p>
+        </div>
+
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png">
+            <p><strong>Hotel Voucher</strong></p>
+        </div>
+
+        <div class="company" style="text-align:right;">
+            <h2>AL MASAR COMPANY</h2>
+            <p>For Umrah Services</p>
+            <p>Islamabad</p>
+            <p>WhatsApp: +92 3000000000</p>
+        </div>
+
+    </div>
+
+    <!-- FAMILY INFO -->
+    <table>
+        <tr>
+            <th>Family Head</th>
+            <td>Muhammad Ghazanfar Mehdi</td>
+
+            <th>Voucher No</th>
+            <td>UB-106467</td>
+        </tr>
+    </table>
+
+    <!-- PASSENGERS -->
+    <div class="section-title">Passengers Detail</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>SNO</th>
+            <th>Passport</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>PAX</th>
+            <th>Visa #</th>
+        </tr>
+        </thead>
+
+        <tbody id="passengerTable"></tbody>
+    </table>
+
+    <!-- HOTEL -->
+    <div class="section-title">Accommodation</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>City</th>
+            <th>Hotel Name</th>
+            <th>Meal</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Nights</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>Makkah</td>
+            <td>HADAYA TOWER</td>
+            <td>RO</td>
+            <td>25-02-26</td>
+            <td>04-03-26</td>
+            <td>7</td>
+        </tr>
+
+        <tr>
+            <td>Madinah</td>
+            <td>REHAB AL MADINA</td>
+            <td>RO</td>
+            <td>04-03-26</td>
+            <td>10-03-26</td>
+            <td>6</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- TRANSPORT -->
+    <div class="section-title">Transport / Flight Details</div>
+
+    <div class="flex">
+
+        <table>
+            <thead>
+            <tr>
+                <th>Flight</th>
+                <th>Sector</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>PA-870</td>
+                <td>MUX-JED</td>
+                <td>25 FEB 22:15</td>
+                <td>26 FEB 02:15</td>
+            </tr>
+
+            <tr>
+                <td>PA-871</td>
+                <td>JED-MUX</td>
+                <td>17 MAR 03:30</td>
+                <td>17 MAR 10:15</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <img class="qr"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Voucher106467">
+
+    </div>
+
+    <!-- CONTACT -->
+    <div class="section-title">
+        KPT MAKKAH TEAM
+    </div>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Contact</th>
+        </tr>
+
+        <tr>
+            <td>Muhammad Shahid</td>
+            <td>Makkah Transport</td>
+            <td>+966 576709725</td>
+        </tr>
+
+        <tr>
+            <td>Muhammad Bilal</td>
+            <td>Makkah Checkin</td>
+            <td>+966 599549849</td>
+        </tr>
+    </table>
+
+    <!-- INSTRUCTIONS -->
+    <div class="footer-box">
+
+        <h3>Special Instructions</h3>
+
+        <div class="instruction">
+            • Passenger must carry original passport.<br><br>
+
+            • Hotel check-in time is 4 PM and checkout time is 12 PM.<br><br>
+
+            • Transport timing may change according to schedule.<br><br>
+
+            • Keep this voucher during the complete journey.
+        </div>
+
+        <div class="badge">
+            Approved Voucher
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const passengers = [
+    {
+        sno:1,
+        passport:"AB0178893",
+        name:"Muhammad Ghazanfar Mehdi",
+        gender:"M",
+        pax:"Adult",
+        visa:"902011925"
+    },
+
+    {
+        sno:2,
+        passport:"ZH1853621",
+        name:"Muhammad Aslam",
+        gender:"M",
+        pax:"Adult",
+        visa:"902011925"
+    }
+];
+
+const table = document.getElementById("passengerTable");
+
+passengers.forEach(passenger => {
+
+    table.innerHTML += `
+        <tr>
+            <td>${passenger.sno}</td>
+            <td>${passenger.passport}</td>
+            <td>${passenger.name}</td>
+            <td>${passenger.gender}</td>
+            <td>${passenger.pax}</td>
+            <td>${passenger.visa}</td>
+        </tr>
+    `;
+
+});
+
+</script>
+
+</body>
+</html>

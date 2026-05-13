@@ -15,7 +15,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Building, Plus, CreditCard } from "lucide-react";
 
 export default function Banks() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,6 +54,7 @@ export default function Banks() {
             <h1 className="text-2xl font-bold tracking-tight">Bank Accounts</h1>
             <p className="text-muted-foreground text-sm mt-1">Manage your linked bank accounts</p>
           </div>
+          {isAdmin && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button data-testid="button-add-bank"><Plus className="h-4 w-4 mr-2" />Add Account</Button>
@@ -80,6 +82,7 @@ export default function Banks() {
               </div>
             </DialogContent>
           </Dialog>
+          )}
         </div>
 
         {/* Summary */}

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db, bookingsTable, flightGroupsTable, packagesTable, usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, bookingsTable, flightGroupsTable, packagesTable, usersTable, ledgerTable, bankAccountsTable } from "@workspace/db";
+import { eq, desc } from "drizzle-orm";
 import {
   CreateBookingBody,
   GetBookingParams,
@@ -76,6 +76,8 @@ async function formatBooking(b: typeof bookingsTable.$inferSelect) {
         inclusions: Array.isArray(p.inclusions) ? p.inclusions : [],
         makkahNights: p.makkahNights ?? null,
         madinahNights: p.madinahNights ?? null,
+        makkahHotel: p.makkahHotel ?? null,
+        madinahHotel: p.madinahHotel ?? null,
         imageUrl: p.imageUrl ?? null,
       };
     }
@@ -103,6 +105,42 @@ async function formatBooking(b: typeof bookingsTable.$inferSelect) {
     notes: b.notes ?? null,
     paymentMethod: b.paymentMethod,
   };
+}
+
+async function autoCreateLedgerEntry(
+  bookingId: number,
+  bookingRef: string,
+  amount: number,
+  paymentMethod: string,
+  userId?: number | null,
+) {
+  try {
+    let bankId: number | null = null;
+    if (paymentMethod && paymentMethod.toLowerCase().includes("bank")) {
+      const banks = await db.select().from(bankAccountsTable).where(eq(bankAccountsTable.userId, 1));
+      if (banks.length > 0) bankId = banks[0].id;
+      if (!bankId) {
+        const allBanks = await db.select().from(bankAccountsTable);
+        if (allBanks.length > 0) bankId = allBanks[0].id;
+      }
+    }
+
+    const allEntries = await db.select().from(ledgerTable).orderBy(desc(ledgerTable.id));
+    const lastBalance = allEntries.length > 0 ? Number(allEntries[0].balance) : 0;
+    const newBalance = lastBalance + amount;
+
+    await db.insert(ledgerTable).values({
+      userId: userId ?? null,
+      type: "credit",
+      amount: amount.toString(),
+      description: `Booking ${bookingRef} — ${paymentMethod || "payment"} received`,
+      balance: newBalance.toString(),
+      bookingId,
+      bankId,
+    });
+  } catch (err) {
+    console.error("Failed to auto-create ledger entry:", err);
+  }
 }
 
 router.get("/bookings", async (req, res): Promise<void> => {
@@ -152,6 +190,8 @@ router.post("/bookings", async (req, res): Promise<void> => {
     agentId: agentId ?? null,
     notes: notes ?? null,
   }).returning();
+
+  await autoCreateLedgerEntry(booking.id, bookingRef, totalAmount, paymentMethod || "", agentId ?? null);
 
   res.status(201).json(await formatBooking(booking));
 });
