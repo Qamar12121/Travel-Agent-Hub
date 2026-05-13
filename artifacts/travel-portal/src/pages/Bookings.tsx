@@ -34,7 +34,7 @@ function HoldCountdown({ expiresAt }: { expiresAt: string }) {
 }
 
 export default function Bookings() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -42,15 +42,24 @@ export default function Bookings() {
     if (!authLoading && !isAuthenticated) setLocation("/login");
   }, [isAuthenticated, authLoading]);
 
-  const params = statusFilter !== "all" ? { status: statusFilter } : {};
-  const { data: bookings, isLoading } = useListBookings(params, { query: { queryKey: getListBookingsQueryKey(params) } });
+  const isAdmin = user?.role === "admin";
+
+  const params: Record<string, string | number> = {};
+  if (statusFilter !== "all") params.status = statusFilter;
+  if (!isAdmin && user?.id) params.userId = user.id;
+
+  const { data: bookings, isLoading } = useListBookings(params as Parameters<typeof useListBookings>[0], {
+    query: { queryKey: getListBookingsQueryKey(params as Parameters<typeof useListBookings>[0]) },
+  });
 
   return (
     <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">My Bookings</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage all your travel bookings</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {isAdmin ? "All bookings across the system" : "Your travel bookings"}
+          </p>
         </div>
 
         {/* Filters */}

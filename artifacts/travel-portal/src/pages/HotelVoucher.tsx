@@ -8,12 +8,12 @@ function VoucherSkeleton() {
   return (
     <div className="max-w-[900px] mx-auto space-y-3">
       <div className="flex gap-3"><Skeleton className="h-9 w-24" /><Skeleton className="h-9 w-32" /></div>
-      <Skeleton className="h-[600px] w-full" />
+      <Skeleton className="h-[700px] w-full" />
     </div>
   );
 }
 
-function fmt(dateStr: string) {
+function fmtDate(dateStr: string) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   const dd = String(d.getDate()).padStart(2, "0");
@@ -22,11 +22,41 @@ function fmt(dateStr: string) {
   return `${dd}-${mm}-${yy}`;
 }
 
+function fmtDateLabel(dateStr: string) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mon = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+  const yy = String(d.getFullYear()).slice(2);
+  return `${dd}/${mon}/${yy}`;
+}
+
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr);
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
+
+const border = "1px solid #000";
+const cell: React.CSSProperties = { border, padding: "4px 7px", textAlign: "center", fontSize: "12px" };
+const hdr: React.CSSProperties = { ...cell, backgroundColor: "#e8e8e8", fontWeight: "bold" };
+const secTitle: React.CSSProperties = { ...cell, backgroundColor: "#d0d0d0", fontWeight: "bold", textAlign: "center", fontSize: "13px" };
+
+const KPT_MAKKAH = [
+  { name: "Muhammad Shahid",       role: "Makkah Transport Helpline",          phone: "+966 576709725" },
+  { name: "Muhammad Qurban",       role: "Makkah Transport",                   phone: "+966 562950412" },
+  { name: "M Faisal Riaz",         role: "Tara Johar+White Line Mak Checkin",  phone: "+966 542612312" },
+  { name: "Muhammad Bilal",        role: "Diyar Mather+Jada Al Khalil MakCheckin", phone: "+966 599549849" },
+  { name: "Muhammad Zohaib Mukhtiar", role: "Shuttle Service Makkah Checkin", phone: "+966 599549849" },
+  { name: "Malik Rizwan",          role: "Makkah Manager (Complaint)",         phone: "+966 545247781" },
+];
+
+const KPT_MADINAH = [
+  { name: "Muhammad Yaseen", role: "Lugin Golden Med Checkin",   phone: "+966 581257860" },
+  { name: "M Ahmad Riaz",    role: "Rehab Al Madsen Med Checkin", phone: "+966 595604841" },
+  { name: "Muhammad Yasir",  role: "Medinah Transport",           phone: "+966 560068278" },
+  { name: "Mian Adnan Saeed",role: "Medinah Manager (Complaint)", phone: "+966 590779391" },
+];
 
 export default function HotelVoucher() {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -65,240 +95,347 @@ export default function HotelVoucher() {
   const madinahHotel = (pkg.madinahHotel as string) || "Madinah Hotel";
   const makkahNights = Number(pkg.makkahNights) || 0;
   const madinahNights = Number(pkg.madinahNights) || 0;
+  const totalNights = makkahNights + madinahNights;
 
   const depDateStr = pkg.departureDate as string;
-  const makkahCheckIn = fmt(depDateStr);
-  const makkahCheckOut = fmt(addDays(depDateStr, makkahNights));
+  const retDateStr = pkg.returnDate as string;
+  const makkahCheckIn  = fmtDate(depDateStr);
+  const makkahCheckOut = fmtDate(addDays(depDateStr, makkahNights));
   const madinahCheckIn = makkahCheckOut;
-  const madinahCheckOut = fmt(addDays(depDateStr, makkahNights + madinahNights));
+  const madinahCheckOut = fmtDate(addDays(depDateStr, makkahNights + madinahNights));
 
   const flight = booking.flightGroup as Record<string, unknown> | null;
-  const flightNumber = flight ? String(flight.flightNumber) : (String(pkg.airline || "PK") + "-XXX");
-  const sector = flight
-    ? `${String(flight.originCode || "MUX")}-${String(flight.destinationCode || "JED")}`
-    : "MUX-JED";
+  const depFlight   = flight ? String(flight.flightNumber || "PA-870") : "PA-870";
+  const depSector   = flight ? `${String(flight.originCode || "MUX")}-${String(flight.destinationCode || "JED")}` : "MUX-JED";
+  const retFlightNo = "PA-" + (depFlight.split("-")[1] ? String(Number(depFlight.split("-")[1]) + 1) : "871");
+  const retSector   = flight ? `${String(flight.destinationCode || "JED")}-${String(flight.originCode || "MUX")}` : "JED-MUX";
+
   const depDate = flight ? String(flight.departureDate || depDateStr) : depDateStr;
   const depTime = flight ? String(flight.departureTime || "22:15") : "22:15";
   const arrTime = flight ? String(flight.arrivalTime || "02:15") : "02:15";
 
   const depLabel = (() => {
     const d = new Date(depDate);
-    const day = String(d.getDate()).padStart(2, "0");
-    const mon = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
-    return `${day}-${mon} ${depTime}`;
+    return `${String(d.getDate()).padStart(2,"0")}-${d.toLocaleString("en-US",{month:"short"}).toUpperCase()} ${depTime}`;
+  })();
+  const arrLabel = (() => {
+    const d = new Date(depDate); d.setDate(d.getDate() + 1);
+    return `${String(d.getDate()).padStart(2,"0")}-${d.toLocaleString("en-US",{month:"short"}).toUpperCase()} ${arrTime}`;
   })();
 
-  const arrLabel = (() => {
-    const d = new Date(depDate);
-    d.setDate(d.getDate() + 1);
-    const day = String(d.getDate()).padStart(2, "0");
-    const mon = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
-    return `${day}-${mon} ${arrTime}`;
-  })();
+  const retDepLabel = retDateStr ? (() => {
+    const d = new Date(retDateStr);
+    return `${String(d.getDate()).padStart(2,"0")}-${d.toLocaleString("en-US",{month:"short"}).toUpperCase()} 03:30`;
+  })() : "17-MAR 03:30";
+  const retArrLabel = retDateStr ? (() => {
+    const d = new Date(retDateStr);
+    return `${String(d.getDate()).padStart(2,"0")}-${d.toLocaleString("en-US",{month:"short"}).toUpperCase()} 10:15`;
+  })() : "17-MAR 10:15";
 
   const familyHead = passengers.length > 0
     ? `${passengers[0].firstName || ""} ${passengers[0].lastName || ""}`.trim()
     : booking.contactEmail;
 
-  const voucherNo = String(booking.id || "").padStart(6, "0");
-  const todayFmt = fmt(new Date().toISOString().slice(0, 10));
-  const packageName = String(pkg.name || "Umrah Package");
+  const voucherNo = `UB-${String(booking.id || 0).padStart(6, "0")}`;
+  const today = fmtDateLabel(new Date().toISOString().slice(0, 10));
+  const packageName = String(pkg.name || "20 Standard");
+
+  const adults = passengers.length;
+  const beds = Math.ceil(adults / 2);
 
   return (
-    <div className="min-h-screen bg-[#f2f2f2] p-4 md:p-6 print:p-0 print:bg-white">
+    <div className="min-h-screen bg-[#f0f0f0] p-4 md:p-6 print:p-0 print:bg-white">
 
       {/* Controls */}
-      <div className="max-w-[940px] mx-auto mb-4 flex items-center gap-3 print:hidden">
+      <div className="max-w-[960px] mx-auto mb-4 flex items-center gap-3 print:hidden">
         <button
           onClick={() => setLocation(-1 as unknown as string)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-sm font-semibold hover:bg-gray-50 shadow-sm transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-sm font-semibold hover:bg-gray-50 shadow-sm"
         >
           ← Back
         </button>
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0d1b3e] text-white text-sm font-semibold shadow-sm hover:opacity-90 transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0d1b3e] text-white text-sm font-semibold hover:opacity-90"
         >
           🖨 Print / Save PDF
         </button>
       </div>
 
-      {/* Voucher */}
-      <div className="max-w-[940px] mx-auto bg-white border-2 border-black p-5 relative" style={{ fontFamily: "Arial, sans-serif", fontSize: "13px" }}>
-
-        {/* Approved Watermark */}
+      {/* ── VOUCHER ── */}
+      <div
+        className="max-w-[960px] mx-auto bg-white relative overflow-hidden"
+        style={{ border: "2px solid #000", padding: "14px 16px", fontFamily: "Arial, sans-serif" }}
+      >
+        {/* Approved watermark */}
         <div style={{
-          position: "absolute",
-          color: "rgba(0,180,0,0.25)",
-          fontSize: "64px",
-          transform: "rotate(-35deg)",
-          top: "420px",
-          left: "100px",
-          fontWeight: "bold",
-          pointerEvents: "none",
-          userSelect: "none",
-          zIndex: 0,
-        }}>
-          Approved
-        </div>
+          position: "absolute", color: "rgba(0,160,0,0.22)", fontSize: "72px",
+          fontWeight: "bold", transform: "rotate(-35deg)",
+          top: "460px", left: "80px", pointerEvents: "none", userSelect: "none", zIndex: 0,
+        }}>Approved</div>
 
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "center", marginBottom: "10px" }}>
-          <div style={{ width: "35%", fontSize: "13px", fontWeight: "bold", lineHeight: "1.6", textAlign: "left" }}>
-            BIN YASIN TRAVELS &amp; TOURS<br />
-            Voucher Date: {todayFmt}<br />
-            Package: {packageName}
+        {/* ── HEADER ── */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+
+          {/* Left: Company */}
+          <div style={{ width: "34%", fontSize: "12px", lineHeight: "1.55" }}>
+            <div style={{ fontWeight: "bold", fontSize: "14px" }}>BIN YASIN TRAVELS &amp; TOURS</div>
+            <div style={{ fontWeight: "bold" }}>(MUX)</div>
+            <div>Voucher Date: {today}</div>
+            <div>Package: {packageName}</div>
+            <div>PAX: {adults} (A:{adults},C:0,I:0), Beds={beds}</div>
           </div>
-          <div style={{ textAlign: "center" }}>
+
+          {/* Center: Logo */}
+          <div style={{ textAlign: "center", flex: 1 }}>
             <div style={{
-              width: "70px", height: "70px", borderRadius: "12px",
-              background: "#0d1b3e", color: "#f5c842",
-              display: "inline-flex", alignItems: "center", justifyContent: "center",
-              fontSize: "18px", fontWeight: "900", marginBottom: "4px"
-            }}>BYT</div>
-            <div style={{ fontWeight: "bold", fontSize: "15px" }}>بن یاسین ٹریولز</div>
+              display: "inline-flex", flexDirection: "column", alignItems: "center",
+              border: "2px solid #000", padding: "6px 14px", borderRadius: "4px",
+            }}>
+              <div style={{
+                width: "52px", height: "52px", borderRadius: "8px",
+                background: "#0d1b3e", color: "#f5c842",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "16px", fontWeight: "900",
+              }}>KPT</div>
+              <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "4px" }}>بن یاسین ٹریولز</div>
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: "bold", marginTop: "6px", letterSpacing: "1px" }}>Hotel Voucher</div>
           </div>
-          <div style={{ width: "35%", fontSize: "13px", fontWeight: "bold", lineHeight: "1.6", textAlign: "right" }}>
-            AL MASAR COMPANY FOR<br />
-            UMRAH SERVICES<br />
-            Islamabad<br />
-            WhatsApp: +92-300-123-4567
+
+          {/* Right: Partner */}
+          <div style={{ width: "34%", fontSize: "12px", lineHeight: "1.55", textAlign: "right" }}>
+            <div style={{ fontWeight: "bold", fontSize: "13px" }}>AL MASAR COMPANY FOR</div>
+            <div style={{ fontWeight: "bold", fontSize: "13px" }}>UMRAH SERVICES</div>
+            <div style={{ fontSize: "11px", color: "#333" }}>AL MASAR COMPANY FOR UMRAH SERVICES</div>
+            <div>Islamabad</div>
+            <div>Whats APP: +92-300-123-4567</div>
           </div>
         </div>
 
-        {/* Title */}
-        <h2 style={{ textAlign: "center", margin: "10px 0", fontSize: "18px", fontWeight: "bold" }}>Hotel Voucher</h2>
-
-        {/* Family Head row */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "8px", fontSize: "13px" }}>
+        {/* ── FAMILY HEAD ROW ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px" }}>
           <tbody>
             <tr>
-              <th style={thStyle}>Family Head</th>
-              <td style={tdStyle}>{familyHead}</td>
-              <th style={thStyle}>UB</th>
-              <td style={tdStyle}>{voucherNo}</td>
+              <td style={{ ...hdr, width: "14%" }}>Family Head</td>
+              <td style={{ ...cell, textAlign: "left", width: "40%", fontWeight: "bold" }}>{familyHead}</td>
+              <td style={{ ...hdr, width: "12%" }}>{voucherNo}</td>
+              <td style={{ ...hdr, width: "14%" }}>Manual No:</td>
+              <td style={{ ...cell, width: "20%" }}></td>
             </tr>
           </tbody>
         </table>
 
-        {/* Passenger Table */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontSize: "13px" }}>
+        {/* ── MUTAMERS TABLE ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px" }}>
           <thead>
             <tr>
-              <th style={thStyle}>SNO</th>
-              <th style={thStyle}>Passport</th>
-              <th style={thStyle}>Mutamer Name</th>
-              <th style={thStyle}>Gender</th>
-              <th style={thStyle}>PAX</th>
-              <th style={thStyle}>MOFA</th>
-              <th style={thStyle}>Visa</th>
+              <td colSpan={10} style={{ ...secTitle }}>Mutamers</td>
+            </tr>
+            <tr>
+              <th style={{ ...hdr, width: "4%" }}>SNO</th>
+              <th style={{ ...hdr, width: "11%" }}>Passport</th>
+              <th style={{ ...hdr }}>Mutamer Name</th>
+              <th style={{ ...hdr, width: "4%" }}>G</th>
+              <th style={{ ...hdr, width: "8%" }}>PAX</th>
+              <th style={{ ...hdr, width: "6%" }}>Bed</th>
+              <th style={{ ...hdr, width: "7%" }}>MOFA #</th>
+              <th style={{ ...hdr, width: "7%" }}>GRP #</th>
+              <th style={{ ...hdr, width: "11%" }}>Visa #</th>
+              <th style={{ ...hdr, width: "9%" }}>PNR</th>
             </tr>
           </thead>
           <tbody>
             {passengers.length > 0 ? passengers.map((p, i) => (
               <tr key={i}>
-                <td style={tdStyle}>{i + 1}</td>
-                <td style={tdStyle}>{p.passportNumber || "—"}</td>
-                <td style={{ ...tdStyle, textAlign: "left" }}>{`${p.firstName || ""} ${p.lastName || ""}`.trim() || "—"}</td>
-                <td style={tdStyle}>{(p.gender || "M").toUpperCase().charAt(0)}</td>
-                <td style={tdStyle}>Adult</td>
-                <td style={tdStyle}>Yes</td>
-                <td style={tdStyle}>—</td>
+                <td style={cell}>{i + 1}</td>
+                <td style={cell}>{p.passportNumber || "—"}</td>
+                <td style={{ ...cell, textAlign: "left" }}>{`${p.firstName || ""} ${p.lastName || ""}`.trim()}</td>
+                <td style={cell}>{(p.gender || "M").charAt(0).toUpperCase()}</td>
+                <td style={cell}>Adult</td>
+                <td style={cell}>{i % 2 === 0 ? "Lower" : "Upper"}</td>
+                <td style={cell}>Yes</td>
+                <td style={cell}>{String(booking.id).padStart(4,"0")}</td>
+                <td style={cell}>—</td>
+                <td style={cell}>{flight ? String((flight as Record<string,unknown>).pnr || "—") : "—"}</td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "#888" }}>No passenger details</td>
+                <td colSpan={10} style={{ ...cell, color: "#888" }}>No passenger details</td>
               </tr>
             )}
           </tbody>
         </table>
 
-        {/* Accommodation Table */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontSize: "13px" }}>
+        {/* ── ACCOMMODATION TABLE ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px" }}>
+          <thead>
+            <tr><td colSpan={9} style={secTitle}>Accommodation</td></tr>
+            <tr>
+              <th style={{ ...hdr, width: "10%" }}>City</th>
+              <th style={{ ...hdr }}>Hotel Name</th>
+              <th style={{ ...hdr, width: "9%" }}>View</th>
+              <th style={{ ...hdr, width: "6%" }}>Meal</th>
+              <th style={{ ...hdr, width: "8%" }}>Conf#</th>
+              <th style={{ ...hdr, width: "14%" }}>Room Type</th>
+              <th style={{ ...hdr, width: "10%" }}>Checkin</th>
+              <th style={{ ...hdr, width: "10%" }}>Checkout</th>
+              <th style={{ ...hdr, width: "7%" }}>Nights</th>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <td colSpan={8} style={sectionTitleStyle}>Accommodation</td>
+              <td style={cell}>Makkah</td>
+              <td style={{ ...cell, textAlign: "left", fontWeight: "bold" }}>{makkahHotel} / SIMILAR / SHUTTLE</td>
+              <td style={cell}>Standard</td>
+              <td style={cell}>RO</td>
+              <td style={cell}>—</td>
+              <td style={cell}>Sharing (Gender)</td>
+              <td style={cell}>{makkahCheckIn}</td>
+              <td style={cell}>{makkahCheckOut}</td>
+              <td style={cell}>{makkahNights}</td>
             </tr>
             <tr>
-              <th style={thStyle}>City</th>
-              <th style={thStyle}>Hotel Name</th>
-              <th style={thStyle}>View</th>
-              <th style={thStyle}>Meal</th>
-              <th style={thStyle}>Room Type</th>
-              <th style={thStyle}>Check-in</th>
-              <th style={thStyle}>Check-out</th>
-              <th style={thStyle}>Nights</th>
+              <td style={cell}>Madinah</td>
+              <td style={{ ...cell, textAlign: "left", fontWeight: "bold" }}>{madinahHotel} &amp; SIMILAR</td>
+              <td style={cell}>Standard</td>
+              <td style={cell}>RO</td>
+              <td style={cell}>—</td>
+              <td style={cell}>Sharing (Gender)</td>
+              <td style={cell}>{madinahCheckIn}</td>
+              <td style={cell}>{madinahCheckOut}</td>
+              <td style={cell}>{madinahNights}</td>
             </tr>
             <tr>
-              <td style={tdStyle}>Makkah</td>
-              <td style={{ ...tdStyle, fontWeight: "bold" }}>{makkahHotel}</td>
-              <td style={tdStyle}>Standard</td>
-              <td style={tdStyle}>RO</td>
-              <td style={tdStyle}>Sharing</td>
-              <td style={tdStyle}>{makkahCheckIn}</td>
-              <td style={tdStyle}>{makkahCheckOut}</td>
-              <td style={tdStyle}>{makkahNights}</td>
-            </tr>
-            <tr>
-              <td style={tdStyle}>Madinah</td>
-              <td style={{ ...tdStyle, fontWeight: "bold" }}>{madinahHotel}</td>
-              <td style={tdStyle}>Standard</td>
-              <td style={tdStyle}>RO</td>
-              <td style={tdStyle}>Sharing</td>
-              <td style={tdStyle}>{madinahCheckIn}</td>
-              <td style={tdStyle}>{madinahCheckOut}</td>
-              <td style={tdStyle}>{madinahNights}</td>
+              <td colSpan={8} style={{ ...cell, textAlign: "right", fontWeight: "bold" }}>Total Nights:</td>
+              <td style={{ ...cell, fontWeight: "bold" }}>{totalNights}</td>
             </tr>
           </tbody>
         </table>
 
-        {/* Flight Details Table */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontSize: "13px" }}>
+        {/* ── TRANSPORT/SERVICES ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px" }}>
+          <thead>
+            <tr><td colSpan={4} style={secTitle}>Transport/Services</td></tr>
+            <tr>
+              <th style={{ ...hdr, width: "14%" }}>Travel Date</th>
+              <th style={{ ...hdr, width: "18%" }}>Transporter</th>
+              <th style={{ ...hdr, width: "14%" }}>Type</th>
+              <th style={hdr}>Description</th>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <td colSpan={5} style={sectionTitleStyle}>Flight Details</td>
-            </tr>
-            <tr>
-              <th style={thStyle}>Flight</th>
-              <th style={thStyle}>Sector</th>
-              <th style={thStyle}>Departure</th>
-              <th style={thStyle}>Arrival</th>
-              <th style={thStyle}>Status</th>
-            </tr>
-            <tr>
-              <td style={tdStyle}>{flightNumber}</td>
-              <td style={tdStyle}>{sector}</td>
-              <td style={tdStyle}>{depLabel}</td>
-              <td style={tdStyle}>{arrLabel}</td>
-              <td style={{ ...tdStyle, color: "#007700", fontWeight: "bold" }}>Confirmed</td>
+              <td style={cell}>{makkahCheckIn}</td>
+              <td style={cell}>Company Transport</td>
+              <td style={cell}>Economy By Bus</td>
+              <td style={{ ...cell, textAlign: "left" }}>Round Trip (Jed-Mak-Med-Mak-Jed)</td>
             </tr>
           </tbody>
         </table>
 
-        {/* Special Instructions */}
-        <div style={{ marginTop: "14px", border: "1px solid #000", padding: "10px", lineHeight: "1.7" }}>
-          <strong>Special Instructions:</strong><br />
-          Hotel Check-in Time: 4:00 PM (16:00)<br />
-          Hotel Check-out Time: 12:00 PM (12:00)<br />
-          Valid passport and Umrah visa required at hotel check-in.
+        {/* ── FLIGHTS: Departure | Arrival side by side ── */}
+        <div style={{ display: "flex", gap: "6px", marginBottom: "6px" }}>
+          {/* Departure */}
+          <table style={{ width: "50%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr><td colSpan={4} style={{ ...secTitle, backgroundColor: "#c8c8c8" }}>Departure (Pakistan to KSA)</td></tr>
+              <tr>
+                <th style={{ ...hdr, fontSize: "11px" }}>Flight</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Sector</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Departure</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Arrival</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ ...cell, fontSize: "11px" }}>{depFlight}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{depSector}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{depLabel}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{arrLabel}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* QR + Arrival */}
+          <table style={{ width: "50%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr><td colSpan={4} style={{ ...secTitle, backgroundColor: "#c8c8c8" }}>Arrival (KSA to PAK)</td></tr>
+              <tr>
+                <th style={{ ...hdr, fontSize: "11px" }}>Flight</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Sector</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Departure</th>
+                <th style={{ ...hdr, fontSize: "11px" }}>Arrival</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ ...cell, fontSize: "11px" }}>{retFlightNo}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{retSector}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{retDepLabel}</td>
+                <td style={{ ...cell, fontSize: "11px" }}>{retArrLabel}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Footer */}
-        <div style={{ marginTop: "18px", fontSize: "12px", lineHeight: "1.9" }}>
-          <strong>KPT MAKKAH TEAM</strong><br />
-          Muhammad Shahid &nbsp;+966576709725<br />
-          Muhammad Qurban &nbsp;+966562950412<br />
-          <br />
-          <strong>KPT MADINAH TEAM</strong><br />
-          Muhammad Yaseen &nbsp;+966581257860<br />
-          Ahmad Riaz &nbsp;+966595604841
+        {/* ── SPECIAL INSTRUCTIONS ── */}
+        <div style={{ border, padding: "5px 8px", marginBottom: "10px", fontSize: "12px" }}>
+          <strong>Special Instructions:</strong>&nbsp; {booking.bookingRef} — ANS
         </div>
 
-        {/* Booking ref small print */}
-        <div style={{ marginTop: "14px", borderTop: "1px solid #ccc", paddingTop: "6px", fontSize: "11px", color: "#666", display: "flex", justifyContent: "space-between" }}>
+        {/* ── KPT MAKKAH TEAM ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "6px" }}>
+          <thead>
+            <tr>
+              <td colSpan={3} style={{
+                border, textAlign: "center", fontWeight: "bold", fontSize: "13px",
+                backgroundColor: "#0d1b3e", color: "#f5c842", padding: "5px",
+              }}>KPT MAKKAH TEAM</td>
+            </tr>
+            <tr>
+              <td colSpan={3} style={{ border, textAlign: "center", fontWeight: "bold", fontSize: "12px", padding: "4px", backgroundColor: "#e8e8e8" }}>
+                Hotel Checkin Time 4pm &nbsp;&nbsp;&nbsp; Hotel Checkout Time &nbsp;12pm
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            {KPT_MAKKAH.map((m, i) => (
+              <tr key={i}>
+                <td style={{ ...cell, textAlign: "left", width: "30%" }}>{m.name}</td>
+                <td style={{ ...cell, textAlign: "left" }}>{m.role}</td>
+                <td style={{ ...cell, width: "20%" }}>{m.phone}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ── KPT MADINAH TEAM ── */}
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "8px" }}>
+          <thead>
+            <tr>
+              <td colSpan={3} style={{
+                border, textAlign: "center", fontWeight: "bold", fontSize: "13px",
+                backgroundColor: "#1a6b35", color: "#ffffff", padding: "5px",
+              }}>KPT MADINAH TEAM</td>
+            </tr>
+          </thead>
+          <tbody>
+            {KPT_MADINAH.map((m, i) => (
+              <tr key={i}>
+                <td style={{ ...cell, textAlign: "left", width: "30%" }}>{m.name}</td>
+                <td style={{ ...cell, textAlign: "left" }}>{m.role}</td>
+                <td style={{ ...cell, width: "20%" }}>{m.phone}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ── FOOTER ── */}
+        <div style={{ borderTop: border, paddingTop: "6px", display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#555" }}>
           <span>Booking Ref: <strong>{booking.bookingRef}</strong></span>
-          <span>Total: PKR {Number(booking.totalAmount).toLocaleString()} &nbsp;|&nbsp; Pax: {passengers.length}</span>
-          <span>Generated: {todayFmt}</span>
+          <span>Total: PKR {Number(booking.totalAmount).toLocaleString()} | Pax: {passengers.length}</span>
+          <span>Generated: {today}</span>
         </div>
       </div>
 
@@ -306,31 +443,9 @@ export default function HotelVoucher() {
         @media print {
           body { background: white !important; padding: 0 !important; }
           .print\\:hidden { display: none !important; }
-          @page { margin: 0.3in; size: A4 portrait; }
+          @page { margin: 0.25in; size: A4 portrait; }
         }
       `}</style>
     </div>
   );
 }
-
-const thStyle: React.CSSProperties = {
-  border: "1px solid #000",
-  padding: "6px 8px",
-  textAlign: "center",
-  backgroundColor: "#eaeaea",
-  fontWeight: "bold",
-};
-
-const tdStyle: React.CSSProperties = {
-  border: "1px solid #000",
-  padding: "6px 8px",
-  textAlign: "center",
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  border: "1px solid #000",
-  padding: "6px 8px",
-  textAlign: "center",
-  backgroundColor: "#eaeaea",
-  fontWeight: "bold",
-};

@@ -1,4 +1,4 @@
-import { useGetDashboardStats, getGetDashboardStatsQueryKey, useGetRecentBookings, getGetRecentBookingsQueryKey } from "@workspace/api-client-react";
+import { useGetDashboardStats, getGetDashboardStatsQueryKey, useGetRecentBookings, getGetRecentBookingsQueryKey, useListBookings, getListBookingsQueryKey } from "@workspace/api-client-react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,16 +70,25 @@ const QUICK_LINKS = [
 export default function Dashboard() {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [, setLocation] = useLocation();
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) setLocation("/login");
   }, [isAuthenticated, authLoading]);
 
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats({ query: { queryKey: getGetDashboardStatsQueryKey() } });
-  const { data: recentBookings, isLoading: bookingsLoading } = useGetRecentBookings({ query: { queryKey: getGetRecentBookingsQueryKey() } });
+
+  const filteredParams = user && !isAdmin && user.id ? { userId: user.id } : {};
+  const { data: filteredBookings, isLoading: filteredLoading } = useListBookings(
+    filteredParams as Parameters<typeof useListBookings>[0],
+    { query: { queryKey: getListBookingsQueryKey(filteredParams as Parameters<typeof useListBookings>[0]) } }
+  );
+  const { data: allRecentBookings, isLoading: allLoading } = useGetRecentBookings({ query: { queryKey: getGetRecentBookingsQueryKey() } });
+
+  const recentBookings = isAdmin ? allRecentBookings : filteredBookings;
+  const bookingsLoading = isAdmin ? allLoading : filteredLoading;
 
   const fmt = (n: number) => n?.toLocaleString("en-PK") ?? "0";
-  const isAdmin = user?.role === "admin";
 
   const greeting = () => {
     const h = new Date().getHours();
