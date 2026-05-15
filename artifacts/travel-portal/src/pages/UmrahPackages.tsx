@@ -47,6 +47,11 @@ type PkgType = {
   madinahNights?: number | null;
   makkahHotel?: string | null;
   madinahHotel?: string | null;
+  returnMakkahHotel?: string | null;
+  returnMakkahNights?: number | null;
+  flightNumber?: string | null;
+  departureTime?: string | null;
+  arrivalTime?: string | null;
   imageUrl?: string | null;
 };
 
@@ -70,7 +75,9 @@ function AirlineLogo({ airline }: { airline: string }) {
 
 function QuickViewModal({ pkg, open, onClose }: { pkg: PkgType; open: boolean; onClose: () => void }) {
   const makkahHotel = pkg.makkahHotel || pkg.hotel;
-  const madinahHotel = pkg.madinahHotel || "Madinah Hotel";
+  const madinahHotel = pkg.madinahHotel || "";
+  const returnMakkahHotel = pkg.returnMakkahHotel || makkahHotel;
+  const hasThreeLeg = !!(pkg.returnMakkahNights && pkg.returnMakkahNights > 0);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -90,65 +97,124 @@ function QuickViewModal({ pkg, open, onClose }: { pkg: PkgType; open: boolean; o
 
         <div className="space-y-5 pt-2">
           {/* Description */}
-          <p className="text-sm text-muted-foreground leading-relaxed">{pkg.description}</p>
+          {pkg.description && <p className="text-sm text-muted-foreground leading-relaxed">{pkg.description}</p>}
 
-          {/* Airline */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border">
-            <Plane className="h-4 w-4 text-primary flex-shrink-0" />
-            <div className="flex items-center gap-2 flex-1">
-              <AirlineLogo airline={pkg.airline} />
-              <span className="text-xs font-semibold text-muted-foreground">{pkg.airline}</span>
+          {/* Flight Schedule */}
+          <div className="rounded-xl border bg-muted/20 p-3 space-y-2">
+            <div className="flex items-center gap-2 mb-1">
+              <Plane className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold uppercase tracking-wider">Flight Schedule</span>
             </div>
-            <div className="text-xs text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5 inline mr-1" />{pkg.departureDate}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 flex-1">
+                <AirlineLogo airline={pkg.airline} />
+                <span className="text-xs font-semibold">{pkg.airline}</span>
+                {pkg.flightNumber && (
+                  <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{pkg.flightNumber}</span>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" />{pkg.departureDate}
+              </div>
             </div>
+            {(pkg.departureTime || pkg.arrivalTime) && (
+              <div className="flex items-center gap-3 text-xs">
+                {pkg.departureTime && (
+                  <span className="font-bold">{pkg.departureTime}</span>
+                )}
+                {pkg.departureTime && pkg.arrivalTime && (
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                )}
+                {pkg.arrivalTime && (
+                  <span className="font-bold">{pkg.arrivalTime}</span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Hotels */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="border-2 rounded-xl overflow-hidden" style={{ borderColor: "#0d1b3e" }}>
-              <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: "#0d1b3e" }}>
-                <Hotel className="h-3.5 w-3.5 text-white" />
-                <span className="text-white font-bold text-xs">Makkah Hotel</span>
-              </div>
-              <div className="p-3 space-y-1.5">
-                <div className="font-black text-sm" style={{ color: "#0d1b3e" }}>{makkahHotel}</div>
-                {pkg.hotelRating && (
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: pkg.hotelRating }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
-                    ))}
+          {/* 3-Leg Itinerary */}
+          <div>
+            <h4 className="font-bold text-sm mb-3 flex items-center gap-2">
+              <MapPin className="h-4 w-4" /> Itinerary
+            </h4>
+            <div className="space-y-2">
+              {/* Leg 1: Makkah */}
+              <div className="border-2 rounded-xl overflow-hidden" style={{ borderColor: "#0d1b3e" }}>
+                <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: "#0d1b3e" }}>
+                  <span className="h-5 w-5 rounded-full bg-white text-[#0d1b3e] text-[10px] flex items-center justify-center font-black flex-shrink-0">1</span>
+                  <Hotel className="h-3.5 w-3.5 text-white" />
+                  <span className="text-white font-bold text-xs">Makkah — 1st Stay</span>
+                </div>
+                <div className="p-3 flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="font-black text-sm" style={{ color: "#0d1b3e" }}>{makkahHotel}</div>
+                    {pkg.hotelRating && (
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: pkg.hotelRating }).map((_, i) => (
+                          <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="h-3 w-3" /> Near Masjid Al-Haram
+                    </div>
                   </div>
-                )}
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Moon className="h-3 w-3" /> {pkg.makkahNights ?? 0} Nights
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> Near Masjid Al-Haram
-                </div>
-              </div>
-            </div>
-            <div className="border-2 rounded-xl overflow-hidden" style={{ borderColor: "#1a7a4a" }}>
-              <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: "#1a7a4a" }}>
-                <Hotel className="h-3.5 w-3.5 text-white" />
-                <span className="text-white font-bold text-xs">Madinah Hotel</span>
-              </div>
-              <div className="p-3 space-y-1.5">
-                <div className="font-black text-sm" style={{ color: "#1a7a4a" }}>{madinahHotel}</div>
-                {pkg.hotelRating && (
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: pkg.hotelRating }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
-                    ))}
+                  <div className="flex items-center gap-1 text-sm font-bold text-[#0d1b3e] flex-shrink-0">
+                    <Moon className="h-4 w-4" /> {pkg.makkahNights ?? 0}N
                   </div>
-                )}
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Moon className="h-3 w-3" /> {pkg.madinahNights ?? 0} Nights
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> Near Masjid an-Nabawi
                 </div>
               </div>
+
+              {/* Leg 2: Madinah */}
+              {madinahHotel && (
+                <div className="border-2 rounded-xl overflow-hidden" style={{ borderColor: "#1a7a4a" }}>
+                  <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: "#1a7a4a" }}>
+                    <span className="h-5 w-5 rounded-full bg-white text-[#1a7a4a] text-[10px] flex items-center justify-center font-black flex-shrink-0">2</span>
+                    <Hotel className="h-3.5 w-3.5 text-white" />
+                    <span className="text-white font-bold text-xs">Madinah — 2nd Stay</span>
+                  </div>
+                  <div className="p-3 flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="font-black text-sm" style={{ color: "#1a7a4a" }}>{madinahHotel}</div>
+                      {pkg.hotelRating && (
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: pkg.hotelRating }).map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" /> Near Masjid an-Nabawi
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm font-bold text-[#1a7a4a] flex-shrink-0">
+                      <Moon className="h-4 w-4" /> {pkg.madinahNights ?? 0}N
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Leg 3: Return Makkah */}
+              {hasThreeLeg && (
+                <div className="border-2 rounded-xl overflow-hidden" style={{ borderColor: "#b45309" }}>
+                  <div className="px-3 py-2 flex items-center gap-2" style={{ backgroundColor: "#b45309" }}>
+                    <span className="h-5 w-5 rounded-full bg-white text-[#b45309] text-[10px] flex items-center justify-center font-black flex-shrink-0">3</span>
+                    <Hotel className="h-3.5 w-3.5 text-white" />
+                    <span className="text-white font-bold text-xs">Makkah — Return Stay</span>
+                  </div>
+                  <div className="p-3 flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="font-black text-sm" style={{ color: "#b45309" }}>{returnMakkahHotel}</div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" /> Near Masjid Al-Haram
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm font-bold text-[#b45309] flex-shrink-0">
+                      <Moon className="h-4 w-4" /> {pkg.returnMakkahNights}N
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -169,16 +235,18 @@ function QuickViewModal({ pkg, open, onClose }: { pkg: PkgType; open: boolean; o
           </div>
 
           {/* Inclusions */}
-          <div>
-            <h4 className="font-bold text-sm mb-2">What's Included</h4>
-            <div className="grid grid-cols-2 gap-1.5">
-              {(pkg.inclusions as string[]).map((inc, i) => (
-                <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" /> {inc}
-                </div>
-              ))}
+          {pkg.inclusions?.length > 0 && (
+            <div>
+              <h4 className="font-bold text-sm mb-2">What's Included</h4>
+              <div className="grid grid-cols-2 gap-1.5">
+                {(pkg.inclusions as string[]).map((inc, i) => (
+                  <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Check className="h-3.5 w-3.5 text-green-500 flex-shrink-0" /> {inc}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2 border-t">

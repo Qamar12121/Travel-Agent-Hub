@@ -827,6 +827,16 @@ components:
           type: ["string", "null"]
         madinahHotel:
           type: ["string", "null"]
+        returnMakkahHotel:
+          type: ["string", "null"]
+        returnMakkahNights:
+          type: ["integer", "null"]
+        flightNumber:
+          type: ["string", "null"]
+        departureTime:
+          type: ["string", "null"]
+        arrivalTime:
+          type: ["string", "null"]
         imageUrl:
           type: ["string", "null"]
 

@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plane, Eye, EyeOff, MessageCircle, Phone, Lock, Shield } from "lucide-react";
+import { Plane, Eye, EyeOff, MessageCircle, Phone, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
@@ -138,21 +138,6 @@ export default function Login() {
                 : "Sign In"}
             </Button>
           </form>
-
-          {/* Admin credentials only */}
-          <div className="rounded-xl border border-dashed border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-4 space-y-2">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Shield className="h-3.5 w-3.5 text-amber-600" />
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Admin Access</p>
-            </div>
-            <button type="button"
-              onClick={() => { form.setValue("email", "admin@travelportal.com"); form.setValue("password", "admin123"); }}
-              className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors text-left group border border-amber-200/40">
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 w-14">Admin</span>
-              <span className="text-xs text-muted-foreground font-mono flex-1">admin@travelportal.com</span>
-              <span className="text-xs text-[#0d1b3e] dark:text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">Use →</span>
-            </button>
-          </div>
 
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}

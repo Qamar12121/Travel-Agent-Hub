@@ -20,6 +20,11 @@ export const packagesTable = pgTable("packages", {
   madinahNights: integer("madinah_nights"),
   makkahHotel: text("makkah_hotel"),
   madinahHotel: text("madinah_hotel"),
+  returnMakkahHotel: text("return_makkah_hotel"),
+  returnMakkahNights: integer("return_makkah_nights"),
+  flightNumber: text("flight_number"),
+  departureTime: text("departure_time"),
+  arrivalTime: text("arrival_time"),
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

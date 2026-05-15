@@ -52,7 +52,8 @@ interface PackageFormData {
   name: string; duration: string; type: string; price: string; hotel: string;
   hotelRating: string; airline: string; departureDate: string; returnDate: string;
   seatsAvailable: string; description: string; makkahNights: string; madinahNights: string;
-  makkahHotel: string; madinahHotel: string; inclusions: string;
+  makkahHotel: string; madinahHotel: string; returnMakkahHotel: string; returnMakkahNights: string;
+  flightNumber: string; departureTime: string; arrivalTime: string; inclusions: string;
 }
 
 interface FlightFormData {
@@ -66,7 +67,8 @@ const EMPTY_PKG: PackageFormData = {
   name: "", duration: "21", type: "umrah", price: "", hotel: "", hotelRating: "4",
   airline: "", departureDate: "", returnDate: "", seatsAvailable: "30",
   description: "", makkahNights: "14", madinahNights: "7",
-  makkahHotel: "", madinahHotel: "", inclusions: "",
+  makkahHotel: "", madinahHotel: "", returnMakkahHotel: "", returnMakkahNights: "7",
+  flightNumber: "", departureTime: "", arrivalTime: "", inclusions: "",
 };
 
 const EMPTY_FLIGHT: FlightFormData = {
@@ -128,6 +130,35 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
           <Input value={form.seatsAvailable} onChange={set("seatsAvailable")} type="number" className="h-9" />
         </div>
 
+        {/* Flight info */}
+        <div className="col-span-2">
+          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 pt-1 border-t">Flight Details</div>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Airline *</Label>
+          <Input value={form.airline} onChange={set("airline")} placeholder="PIA / Air Arabia" required className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Flight Number</Label>
+          <Input value={form.flightNumber} onChange={set("flightNumber")} placeholder="PK-301" className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Departure Date *</Label>
+          <Input value={form.departureDate} onChange={set("departureDate")} type="date" required className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Return Date *</Label>
+          <Input value={form.returnDate} onChange={set("returnDate")} type="date" required className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Departure Time</Label>
+          <Input value={form.departureTime} onChange={set("departureTime")} placeholder="02:00" className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Arrival Time</Label>
+          <Input value={form.arrivalTime} onChange={set("arrivalTime")} placeholder="05:30" className="h-9" />
+        </div>
+
         {/* Hotel info */}
         <div className="col-span-2">
           <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 pt-1 border-t">Hotel Details</div>
@@ -145,40 +176,56 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-semibold">Makkah Hotel</Label>
-          <Input value={form.makkahHotel} onChange={set("makkahHotel")} placeholder="Hilton Makkah Convention" className="h-9" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-semibold">Madinah Hotel</Label>
-          <Input value={form.madinahHotel} onChange={set("madinahHotel")} placeholder="Anwar Al Madinah Mövenpick" className="h-9" />
-        </div>
 
-        {/* Travel info */}
+        {/* Leg 1: Makkah */}
         <div className="col-span-2">
-          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 pt-1 border-t">Travel Details</div>
+          <div className="text-xs font-bold text-[#0d1b3e] uppercase tracking-wider mb-2 pt-1 border-t flex items-center gap-1.5">
+            <span className="h-5 w-5 rounded-full bg-[#0d1b3e] text-white text-[10px] flex items-center justify-center font-black">1</span>
+            1st Stop — Makkah
+          </div>
         </div>
         <div className="space-y-1">
-          <Label className="text-xs font-semibold">Airline *</Label>
-          <Input value={form.airline} onChange={set("airline")} placeholder="PIA / Air Arabia" required className="h-9" />
+          <Label className="text-xs font-semibold">Makkah Hotel *</Label>
+          <Input value={form.makkahHotel} onChange={set("makkahHotel")} placeholder="Hilton Makkah Convention" className="h-9" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs font-semibold">Makkah Nights</Label>
           <Input value={form.makkahNights} onChange={set("makkahNights")} type="number" className="h-9" />
         </div>
+
+        {/* Leg 2: Madinah */}
+        <div className="col-span-2">
+          <div className="text-xs font-bold text-[#1a7a4a] uppercase tracking-wider mb-2 pt-1 border-t flex items-center gap-1.5">
+            <span className="h-5 w-5 rounded-full bg-[#1a7a4a] text-white text-[10px] flex items-center justify-center font-black">2</span>
+            2nd Stop — Madinah
+          </div>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Madinah Hotel *</Label>
+          <Input value={form.madinahHotel} onChange={set("madinahHotel")} placeholder="Anwar Al Madinah Mövenpick" className="h-9" />
+        </div>
         <div className="space-y-1">
           <Label className="text-xs font-semibold">Madinah Nights</Label>
           <Input value={form.madinahNights} onChange={set("madinahNights")} type="number" className="h-9" />
         </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-semibold">Departure Date *</Label>
-          <Input value={form.departureDate} onChange={set("departureDate")} type="date" required className="h-9" />
+
+        {/* Leg 3: Return Makkah */}
+        <div className="col-span-2">
+          <div className="text-xs font-bold text-[#b45309] uppercase tracking-wider mb-2 pt-1 border-t flex items-center gap-1.5">
+            <span className="h-5 w-5 rounded-full bg-[#b45309] text-white text-[10px] flex items-center justify-center font-black">3</span>
+            3rd Stop — Return to Makkah
+          </div>
         </div>
         <div className="space-y-1">
-          <Label className="text-xs font-semibold">Return Date *</Label>
-          <Input value={form.returnDate} onChange={set("returnDate")} type="date" required className="h-9" />
+          <Label className="text-xs font-semibold">Return Makkah Hotel</Label>
+          <Input value={form.returnMakkahHotel} onChange={set("returnMakkahHotel")} placeholder="Same or different Makkah hotel" className="h-9" />
         </div>
-        <div className="col-span-2 space-y-1">
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Return Makkah Nights</Label>
+          <Input value={form.returnMakkahNights} onChange={set("returnMakkahNights")} type="number" className="h-9" />
+        </div>
+
+        <div className="col-span-2 space-y-1 pt-1 border-t">
           <Label className="text-xs font-semibold">Description</Label>
           <Textarea value={form.description} onChange={set("description")} rows={2} placeholder="Package details..." className="resize-none" />
         </div>
@@ -419,9 +466,15 @@ export default function Admin() {
       price: parseFloat(form.price), hotel: form.hotel, hotelRating: parseInt(form.hotelRating),
       airline: form.airline, departureDate: form.departureDate, returnDate: form.returnDate,
       seatsAvailable: parseInt(form.seatsAvailable), description: form.description,
-      makkahNights: parseInt(form.makkahNights), madinahNights: parseInt(form.madinahNights),
+      makkahNights: form.makkahNights ? parseInt(form.makkahNights) : undefined,
+      madinahNights: form.madinahNights ? parseInt(form.madinahNights) : undefined,
       makkahHotel: form.makkahHotel || undefined,
       madinahHotel: form.madinahHotel || undefined,
+      returnMakkahHotel: form.returnMakkahHotel || undefined,
+      returnMakkahNights: form.returnMakkahNights ? parseInt(form.returnMakkahNights) : undefined,
+      flightNumber: form.flightNumber || undefined,
+      departureTime: form.departureTime || undefined,
+      arrivalTime: form.arrivalTime || undefined,
       inclusions: form.inclusions.split("\n").filter(Boolean),
     };
     if (id) {
@@ -591,9 +644,15 @@ export default function Admin() {
                                       price: String(p.price), hotel: p.hotel, hotelRating: String(p.hotelRating ?? 4),
                                       airline: p.airline, departureDate: p.departureDate, returnDate: p.returnDate,
                                       seatsAvailable: String(p.seatsAvailable), description: p.description ?? "",
-                                      makkahNights: String(p.makkahNights ?? 14), madinahNights: String(p.madinahNights ?? 7),
+                                      makkahNights: String((p as Record<string, unknown>).makkahNights ?? 14),
+                                      madinahNights: String((p as Record<string, unknown>).madinahNights ?? 7),
                                       makkahHotel: ((p as Record<string, unknown>).makkahHotel as string) ?? "",
                                       madinahHotel: ((p as Record<string, unknown>).madinahHotel as string) ?? "",
+                                      returnMakkahHotel: ((p as Record<string, unknown>).returnMakkahHotel as string) ?? "",
+                                      returnMakkahNights: String((p as Record<string, unknown>).returnMakkahNights ?? ""),
+                                      flightNumber: ((p as Record<string, unknown>).flightNumber as string) ?? "",
+                                      departureTime: ((p as Record<string, unknown>).departureTime as string) ?? "",
+                                      arrivalTime: ((p as Record<string, unknown>).arrivalTime as string) ?? "",
                                       inclusions: (p.inclusions as string[] ?? []).join("\n"),
                                     }
                                   })}>

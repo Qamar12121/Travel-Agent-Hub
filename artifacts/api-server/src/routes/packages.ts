@@ -25,6 +25,11 @@ function formatPackage(p: typeof packagesTable.$inferSelect) {
     madinahNights: p.madinahNights ?? null,
     makkahHotel: p.makkahHotel ?? null,
     madinahHotel: p.madinahHotel ?? null,
+    returnMakkahHotel: p.returnMakkahHotel ?? null,
+    returnMakkahNights: p.returnMakkahNights ?? null,
+    flightNumber: p.flightNumber ?? null,
+    departureTime: p.departureTime ?? null,
+    arrivalTime: p.arrivalTime ?? null,
     imageUrl: p.imageUrl ?? null,
   };
 }
@@ -44,6 +49,13 @@ const CreatePackageBody = z.object({
   inclusions: z.array(z.string()).default([]),
   makkahNights: z.number().optional(),
   madinahNights: z.number().optional(),
+  makkahHotel: z.string().optional(),
+  madinahHotel: z.string().optional(),
+  returnMakkahHotel: z.string().optional(),
+  returnMakkahNights: z.number().optional(),
+  flightNumber: z.string().optional(),
+  departureTime: z.string().optional(),
+  arrivalTime: z.string().optional(),
   imageUrl: z.string().optional(),
 });
 
@@ -83,6 +95,13 @@ router.post("/packages", async (req, res): Promise<void> => {
     inclusions: parsed.data.inclusions,
     makkahNights: parsed.data.makkahNights,
     madinahNights: parsed.data.madinahNights,
+    makkahHotel: parsed.data.makkahHotel,
+    madinahHotel: parsed.data.madinahHotel,
+    returnMakkahHotel: parsed.data.returnMakkahHotel,
+    returnMakkahNights: parsed.data.returnMakkahNights,
+    flightNumber: parsed.data.flightNumber,
+    departureTime: parsed.data.departureTime,
+    arrivalTime: parsed.data.arrivalTime,
     imageUrl: parsed.data.imageUrl,
   }).returning();
   res.status(201).json(formatPackage(pkg));

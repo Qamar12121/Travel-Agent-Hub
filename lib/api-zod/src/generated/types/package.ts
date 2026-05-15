@@ -30,5 +30,15 @@ export interface Package {
   /** @nullable */
   madinahHotel?: string | null;
   /** @nullable */
+  returnMakkahHotel?: string | null;
+  /** @nullable */
+  returnMakkahNights?: number | null;
+  /** @nullable */
+  flightNumber?: string | null;
+  /** @nullable */
+  departureTime?: string | null;
+  /** @nullable */
+  arrivalTime?: string | null;
+  /** @nullable */
   imageUrl?: string | null;
 }
