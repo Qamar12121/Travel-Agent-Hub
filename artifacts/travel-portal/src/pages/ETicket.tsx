@@ -156,7 +156,7 @@ export default function ETicket() {
       {/* ── Controls (hidden on print) ──────────────────────── */}
       <div className="max-w-[900px] mx-auto mb-5 flex items-center gap-3 print:hidden">
         <button
-          onClick={() => setLocation(-1 as unknown as string)}
+          onClick={() => window.history.back()}
           className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-sm font-semibold hover:bg-gray-50 shadow-sm transition"
         >
           <ArrowLeft className="h-4 w-4" /> Back

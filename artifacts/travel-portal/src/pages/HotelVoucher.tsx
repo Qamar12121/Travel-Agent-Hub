@@ -105,14 +105,23 @@ export default function HotelVoucher() {
   const madinahCheckOut = fmtDate(addDays(depDateStr, makkahNights + madinahNights));
 
   const flight = booking.flightGroup as Record<string, unknown> | null;
-  const depFlight   = flight ? String(flight.flightNumber || "PA-870") : "PA-870";
+
+  // For Umrah packages, use package-level flight fields if available
+  const pkgFlightNo   = pkg.flightNumber as string | null;
+  const pkgDepTime    = pkg.departureTime as string | null;
+  const pkgArrTime    = pkg.arrivalTime as string | null;
+
+  const depFlight   = flight ? String(flight.flightNumber || "N/A")
+    : pkgFlightNo || "N/A";
   const depSector   = flight ? `${String(flight.originCode || "MUX")}-${String(flight.destinationCode || "JED")}` : "MUX-JED";
-  const retFlightNo = "PA-" + (depFlight.split("-")[1] ? String(Number(depFlight.split("-")[1]) + 1) : "871");
+  const retFlightNo = flight
+    ? "PA-" + (String(flight.flightNumber || "PA-870").split("-")[1] ? String(Number(String(flight.flightNumber || "PA-870").split("-")[1]) + 1) : "871")
+    : "N/A";
   const retSector   = flight ? `${String(flight.destinationCode || "JED")}-${String(flight.originCode || "MUX")}` : "JED-MUX";
 
   const depDate = flight ? String(flight.departureDate || depDateStr) : depDateStr;
-  const depTime = flight ? String(flight.departureTime || "22:15") : "22:15";
-  const arrTime = flight ? String(flight.arrivalTime || "02:15") : "02:15";
+  const depTime = flight ? String(flight.departureTime || "22:15") : pkgDepTime || "22:15";
+  const arrTime = flight ? String(flight.arrivalTime || "02:15") : pkgArrTime || "02:15";
 
   const depLabel = (() => {
     const d = new Date(depDate);
@@ -149,7 +158,7 @@ export default function HotelVoucher() {
       {/* Controls */}
       <div className="max-w-[960px] mx-auto mb-4 flex items-center gap-3 print:hidden">
         <button
-          onClick={() => setLocation(-1 as unknown as string)}
+          onClick={() => window.history.back()}
           className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-sm font-semibold hover:bg-gray-50 shadow-sm"
         >
           ← Back
@@ -188,19 +197,10 @@ export default function HotelVoucher() {
 
           {/* Center: Logo */}
           <div style={{ textAlign: "center", flex: 1 }}>
-            <div style={{
-              display: "inline-flex", flexDirection: "column", alignItems: "center",
-              border: "2px solid #000", padding: "6px 14px", borderRadius: "4px",
-            }}>
-              <div style={{
-                width: "52px", height: "52px", borderRadius: "8px",
-                background: "#0d1b3e", color: "#f5c842",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "16px", fontWeight: "900",
-              }}>KPT</div>
-              <div style={{ fontWeight: "bold", fontSize: "11px", marginTop: "4px" }}>بن یاسین ٹریولز</div>
+            <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}>
+              <img src="/logo.png" alt="Bin Yasin Travels" style={{ height: "70px", objectFit: "contain" }} />
             </div>
-            <div style={{ fontSize: "16px", fontWeight: "bold", marginTop: "6px", letterSpacing: "1px" }}>Hotel Voucher</div>
+            <div style={{ fontSize: "16px", fontWeight: "bold", marginTop: "4px", letterSpacing: "1px" }}>Hotel Voucher</div>
           </div>
 
           {/* Right: Partner */}

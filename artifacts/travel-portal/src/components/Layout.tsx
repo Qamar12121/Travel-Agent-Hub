@@ -129,14 +129,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 flex flex-col bg-sidebar border-sidebar-border text-sidebar-foreground p-0">
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
-              <div className="h-9 w-9 bg-[#f5c842] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
-                <Plane className="h-5 w-5 text-[#0d1b3e]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-black text-sm leading-tight">Bin Yasin Travels</div>
-                <div className="text-xs text-sidebar-foreground/50">بن یاسین ٹریولز</div>
-              </div>
+            <div className="flex items-center gap-3 px-4 py-4 border-b border-sidebar-border bg-white/5">
+              <img src="/logo.png" alt="Bin Yasin Travels" className="h-10 w-auto object-contain" style={{ maxWidth: 160 }} />
             </div>
 
             {user && (
@@ -191,14 +185,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Sheet>
 
         {/* Logo */}
-        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2.5 mr-2 group">
-          <div className="h-8 w-8 bg-[#f5c842] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:bg-[#e5b832] transition-colors">
-            <Plane className="h-4 w-4 text-[#0d1b3e]" />
-          </div>
-          <div className="hidden sm:block">
-            <div className="font-black text-sm text-white leading-tight tracking-tight">Bin Yasin Travels</div>
-            <div className="text-[10px] text-white/40 leading-none">بن یاسین ٹریولز</div>
-          </div>
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 mr-2 group">
+          <img src="/logo.png" alt="Bin Yasin Travels" className="h-10 w-auto object-contain drop-shadow" style={{ maxWidth: 140 }} />
         </Link>
 
         {/* Desktop nav quick links */}

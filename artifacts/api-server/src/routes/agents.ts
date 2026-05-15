@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, usersTable, bookingsTable, flightGroupsTable, packagesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { GetAgentBookingsParams, GetAgentStatsParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -30,7 +30,9 @@ router.get("/agents/:id/bookings", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Invalid id" });
     return;
   }
-  const bookings = await db.select().from(bookingsTable).where(eq(bookingsTable.agentId, params.data.id));
+  const bookings = await db.select().from(bookingsTable).where(
+    or(eq(bookingsTable.agentId, params.data.id), eq(bookingsTable.userId, params.data.id))
+  );
 
   const formatted = await Promise.all(bookings.map(async b => {
     let flightGroup = null;

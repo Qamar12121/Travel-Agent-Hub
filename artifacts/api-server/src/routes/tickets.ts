@@ -82,8 +82,11 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
     const [pkg] = await db.select().from(packagesTable).where(eq(packagesTable.id, booking.packageId));
     if (pkg) {
       const airlineCode = pkg.airline.substring(0, 2).toUpperCase();
+      const flightNo = pkg.flightNumber ?? `${airlineCode}-001`;
+      const depTime = pkg.departureTime ?? "07:00";
+      const arrTime = pkg.arrivalTime ?? "10:30";
       flightData = {
-        flightNumber: `${airlineCode}-001`,
+        flightNumber: flightNo,
         airline: pkg.airline,
         airlineCode,
         origin: "Multan",
@@ -91,8 +94,8 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
         destination: "Jeddah",
         destinationCode: "JED",
         departureDate: pkg.departureDate,
-        departureTime: "07:00",
-        arrivalTime: "10:30",
+        departureTime: depTime,
+        arrivalTime: arrTime,
         class: "Economy",
         baggage: "30 KG",
         pnr: booking.bookingRef,
@@ -104,8 +107,8 @@ router.get("/tickets/:bookingId", async (req, res): Promise<void> => {
         destination: "Multan",
         destinationCode: "MUX",
         departureDate: pkg.returnDate,
-        departureTime: "12:00",
-        arrivalTime: "15:30",
+        departureTime: "03:30",
+        arrivalTime: "08:00",
         class: "Economy",
         baggage: "30 KG",
       };
