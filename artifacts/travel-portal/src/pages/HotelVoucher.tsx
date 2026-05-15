@@ -93,16 +93,20 @@ export default function HotelVoucher() {
 
   const makkahHotel = (pkg.makkahHotel as string) || (pkg.hotel as string) || "Makkah Hotel";
   const madinahHotel = (pkg.madinahHotel as string) || "Madinah Hotel";
+  const returnMakkahHotel = (pkg.returnMakkahHotel as string) || makkahHotel;
   const makkahNights = Number(pkg.makkahNights) || 0;
   const madinahNights = Number(pkg.madinahNights) || 0;
-  const totalNights = makkahNights + madinahNights;
+  const returnMakkahNights = Number(pkg.returnMakkahNights) || 0;
+  const totalNights = makkahNights + madinahNights + returnMakkahNights;
 
   const depDateStr = pkg.departureDate as string;
   const retDateStr = pkg.returnDate as string;
-  const makkahCheckIn  = fmtDate(depDateStr);
-  const makkahCheckOut = fmtDate(addDays(depDateStr, makkahNights));
-  const madinahCheckIn = makkahCheckOut;
-  const madinahCheckOut = fmtDate(addDays(depDateStr, makkahNights + madinahNights));
+  const makkahCheckIn     = fmtDate(depDateStr);
+  const makkahCheckOut    = fmtDate(addDays(depDateStr, makkahNights));
+  const madinahCheckIn    = makkahCheckOut;
+  const madinahCheckOut   = fmtDate(addDays(depDateStr, makkahNights + madinahNights));
+  const retMakkahCheckIn  = madinahCheckOut;
+  const retMakkahCheckOut = fmtDate(addDays(depDateStr, makkahNights + madinahNights + returnMakkahNights));
 
   const flight = booking.flightGroup as Record<string, unknown> | null;
 
@@ -285,7 +289,7 @@ export default function HotelVoucher() {
           </thead>
           <tbody>
             <tr>
-              <td style={cell}>Makkah</td>
+              <td style={{ ...cell, fontWeight: "bold", color: "#0d1b3e" }}>Makkah ①</td>
               <td style={{ ...cell, textAlign: "left", fontWeight: "bold" }}>{makkahHotel} / SIMILAR / SHUTTLE</td>
               <td style={cell}>Standard</td>
               <td style={cell}>RO</td>
@@ -296,7 +300,7 @@ export default function HotelVoucher() {
               <td style={cell}>{makkahNights}</td>
             </tr>
             <tr>
-              <td style={cell}>Madinah</td>
+              <td style={{ ...cell, fontWeight: "bold", color: "#1a6b35" }}>Madinah ②</td>
               <td style={{ ...cell, textAlign: "left", fontWeight: "bold" }}>{madinahHotel} &amp; SIMILAR</td>
               <td style={cell}>Standard</td>
               <td style={cell}>RO</td>
@@ -306,6 +310,19 @@ export default function HotelVoucher() {
               <td style={cell}>{madinahCheckOut}</td>
               <td style={cell}>{madinahNights}</td>
             </tr>
+            {returnMakkahNights > 0 && (
+              <tr style={{ backgroundColor: "#fffbe6" }}>
+                <td style={{ ...cell, fontWeight: "bold", color: "#b45309" }}>Makkah ③</td>
+                <td style={{ ...cell, textAlign: "left", fontWeight: "bold" }}>{returnMakkahHotel} / SIMILAR / SHUTTLE</td>
+                <td style={cell}>Standard</td>
+                <td style={cell}>RO</td>
+                <td style={cell}>—</td>
+                <td style={cell}>Sharing (Gender)</td>
+                <td style={cell}>{retMakkahCheckIn}</td>
+                <td style={cell}>{retMakkahCheckOut}</td>
+                <td style={cell}>{returnMakkahNights}</td>
+              </tr>
+            )}
             <tr>
               <td colSpan={8} style={{ ...cell, textAlign: "right", fontWeight: "bold" }}>Total Nights:</td>
               <td style={{ ...cell, fontWeight: "bold" }}>{totalNights}</td>
