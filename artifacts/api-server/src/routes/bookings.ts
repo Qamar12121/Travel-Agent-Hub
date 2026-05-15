@@ -1,6 +1,17 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
 import { db, bookingsTable, flightGroupsTable, packagesTable, usersTable, ledgerTable, bankAccountsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
+
+function decodeToken(req: Request): { userId: number; role: string } | null {
+  try {
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : auth;
+    if (!token) return null;
+    const payload = JSON.parse(Buffer.from(token, "base64").toString("utf8"));
+    if (payload && payload.userId && payload.role) return payload;
+    return null;
+  } catch { return null; }
+}
 import {
   CreateBookingBody,
   GetBookingParams,
@@ -176,6 +187,11 @@ router.post("/bookings", async (req, res): Promise<void> => {
     if (pkg) totalAmount = Number(pkg.price) * (Array.isArray(passengersInfo) ? passengersInfo.length : 1);
   }
 
+  const caller = decodeToken(req);
+  const callerUserId = caller?.userId ?? null;
+  const callerRole = caller?.role ?? null;
+  const resolvedAgentId = agentId ?? (callerRole === "agent" ? callerUserId : null);
+
   const bookingRef = generateBookingRef();
   const [booking] = await db.insert(bookingsTable).values({
     bookingRef,
@@ -187,7 +203,8 @@ router.post("/bookings", async (req, res): Promise<void> => {
     contactEmail,
     contactPhone,
     paymentMethod,
-    agentId: agentId ?? null,
+    userId: callerUserId,
+    agentId: resolvedAgentId,
     notes: notes ?? null,
   }).returning();
 

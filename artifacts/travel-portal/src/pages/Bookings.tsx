@@ -116,17 +116,22 @@ export default function Bookings() {
                         ? `${b.flightGroup.origin} → ${b.flightGroup.destination}`
                         : b.package?.name ?? "N/A";
                       return (
-                        <tr key={b.id} className="border-b hover:bg-muted/20 transition-colors" data-testid={`row-booking-${b.id}`}>
-                          <td className="px-4 py-3 font-mono text-xs font-bold text-primary">{b.bookingRef}</td>
+                        <tr
+                          key={b.id}
+                          className="border-b group hover:bg-primary/5 transition-all duration-150 cursor-pointer"
+                          onClick={() => setLocation(`/bookings/${b.id}`)}
+                          data-testid={`row-booking-${b.id}`}
+                        >
+                          <td className="px-4 py-3 font-mono text-xs font-bold text-primary group-hover:text-primary/80">{b.bookingRef}</td>
                           <td className="px-4 py-3">
-                            <div className="font-medium">{name}</div>
+                            <div className="font-medium group-hover:text-primary transition-colors">{name}</div>
                             <div className="text-xs text-muted-foreground">{b.contactPhone}</div>
                           </td>
                           <td className="px-4 py-3">
-                            <div>{route}</div>
+                            <div className="group-hover:text-foreground transition-colors">{route}</div>
                             {b.flightGroup && <div className="text-xs text-muted-foreground">{b.flightGroup.airline} · {b.flightGroup.flightNumber}</div>}
                           </td>
-                          <td className="px-4 py-3 font-semibold">PKR {Number(b.totalAmount).toLocaleString()}</td>
+                          <td className="px-4 py-3 font-semibold group-hover:text-primary transition-colors">PKR {Number(b.totalAmount).toLocaleString()}</td>
                           <td className="px-4 py-3">
                             <div className="space-y-1">
                               {statusBadge(b.status)}
@@ -136,9 +141,9 @@ export default function Bookings() {
                             </div>
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(b.createdAt).toLocaleDateString()}</td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                             <Link href={`/bookings/${b.id}`}>
-                              <Button variant="outline" size="sm" data-testid={`button-view-booking-${b.id}`}>
+                              <Button variant="outline" size="sm" className="group-hover:border-primary group-hover:text-primary transition-colors" data-testid={`button-view-booking-${b.id}`}>
                                 <FileText className="h-3 w-3 mr-1" />View
                               </Button>
                             </Link>
