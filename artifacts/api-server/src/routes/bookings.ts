@@ -89,6 +89,11 @@ async function formatBooking(b: typeof bookingsTable.$inferSelect) {
         madinahNights: p.madinahNights ?? null,
         makkahHotel: p.makkahHotel ?? null,
         madinahHotel: p.madinahHotel ?? null,
+        returnMakkahHotel: p.returnMakkahHotel ?? null,
+        returnMakkahNights: p.returnMakkahNights ?? null,
+        flightNumber: p.flightNumber ?? null,
+        departureTime: p.departureTime ?? null,
+        arrivalTime: p.arrivalTime ?? null,
         imageUrl: p.imageUrl ?? null,
       };
     }

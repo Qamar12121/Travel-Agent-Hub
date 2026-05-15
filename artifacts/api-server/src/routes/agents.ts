@@ -59,7 +59,11 @@ router.get("/agents/:id/bookings", async (req, res): Promise<void> => {
           hotel: p.hotel, hotelRating: p.hotelRating ?? null, airline: p.airline,
           departureDate: p.departureDate, returnDate: p.returnDate, seatsAvailable: p.seatsAvailable,
           description: p.description, inclusions: Array.isArray(p.inclusions) ? p.inclusions : [],
-          makkahNights: p.makkahNights ?? null, madinahNights: p.madinahNights ?? null, imageUrl: p.imageUrl ?? null,
+          makkahNights: p.makkahNights ?? null, madinahNights: p.madinahNights ?? null,
+          makkahHotel: p.makkahHotel ?? null, madinahHotel: p.madinahHotel ?? null,
+          returnMakkahHotel: p.returnMakkahHotel ?? null, returnMakkahNights: p.returnMakkahNights ?? null,
+          flightNumber: p.flightNumber ?? null, departureTime: p.departureTime ?? null, arrivalTime: p.arrivalTime ?? null,
+          imageUrl: p.imageUrl ?? null,
         };
       }
     }
@@ -83,7 +87,9 @@ router.get("/agents/:id/stats", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Invalid id" });
     return;
   }
-  const bookings = await db.select().from(bookingsTable).where(eq(bookingsTable.agentId, params.data.id));
+  const bookings = await db.select().from(bookingsTable).where(
+    or(eq(bookingsTable.agentId, params.data.id), eq(bookingsTable.userId, params.data.id))
+  );
   const [agent] = await db.select().from(usersTable).where(eq(usersTable.id, params.data.id));
 
   res.json({
