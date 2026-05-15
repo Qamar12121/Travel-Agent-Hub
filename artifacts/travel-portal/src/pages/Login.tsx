@@ -8,14 +8,13 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plane, Eye, EyeOff, MessageCircle, Phone, Lock } from "lucide-react";
+import { Plane, Eye, EyeOff, MessageCircle, Phone, Lock, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
-
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
@@ -31,24 +30,23 @@ export default function Login() {
   });
 
   const onSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(
-      { data },
-      {
-        onSuccess: (res) => {
-          setAuth(res.token, res.user);
-          toast({ title: "Welcome back!", description: "Login successful." });
-          setLocation("/dashboard");
-        },
-        onError: () => {
-          toast({ title: "Login failed", description: "Incorrect email or password.", variant: "destructive" });
-        },
-      }
-    );
+    loginMutation.mutate({ data }, {
+      onSuccess: (res) => {
+        setAuth(res.token, res.user as Parameters<typeof setAuth>[1]);
+        sessionStorage.removeItem("balanceShown");
+        toast({ title: `Welcome back, ${res.user.name}!` });
+        setLocation("/dashboard");
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Incorrect email or password.";
+        toast({ title: "Login failed", description: msg, variant: "destructive" });
+      },
+    });
   };
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Left panel */}
+      {/* Left brand panel */}
       <div className="hidden lg:flex flex-1 flex-col justify-center items-center bg-[#0d1b3e] text-white p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f5c842' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -86,9 +84,9 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right panel - login form */}
+      {/* Right login form */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-7">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 justify-center mb-2">
             <div className="h-10 w-10 bg-[#0d1b3e] rounded-xl flex items-center justify-center">
@@ -108,20 +106,12 @@ export default function Login() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="font-semibold text-sm">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="agent@binyasintravels.com"
-                {...form.register("email")}
-                className="h-11 border-border/60 focus-visible:ring-[#0d1b3e]"
-              />
+              <Input id="email" type="email" placeholder="you@example.com"
+                {...form.register("email")} className="h-11 border-border/60 focus-visible:ring-[#0d1b3e]" />
               {form.formState.errors.email && (
-                <p className="text-xs text-destructive flex items-center gap-1">
-                  {form.formState.errors.email.message}
-                </p>
+                <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="font-semibold text-sm">Password</Label>
@@ -130,18 +120,10 @@ export default function Login() {
                 </Link>
               </div>
               <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  {...form.register("password")}
-                  className="h-11 pr-10 border-border/60 focus-visible:ring-[#0d1b3e]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="Enter your password"
+                  {...form.register("password")} className="h-11 pr-10 border-border/60 focus-visible:ring-[#0d1b3e]" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
@@ -149,44 +131,32 @@ export default function Login() {
                 <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
               )}
             </div>
-
-            <Button
-              type="submit"
-              className="w-full h-11 bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white font-bold text-base"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? (
-                <span className="flex items-center gap-2"><Lock className="h-4 w-4 animate-pulse" /> Signing in...</span>
-              ) : "Sign In"}
+            <Button type="submit" className="w-full h-11 bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white font-bold text-base"
+              disabled={loginMutation.isPending}>
+              {loginMutation.isPending
+                ? <span className="flex items-center gap-2"><Lock className="h-4 w-4 animate-pulse" /> Signing in...</span>
+                : "Sign In"}
             </Button>
           </form>
 
-          {/* Demo credentials */}
-          <div className="rounded-xl border border-dashed p-4 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Demo Credentials</p>
-            {[
-              { role: "Admin", email: "admin@travelportal.com", password: "admin123", color: "text-red-600" },
-              { role: "Agent", email: "agent@travelportal.com", password: "agent123", color: "text-blue-600" },
-              { role: "Customer", email: "customer@travelportal.com", password: "customer123", color: "text-green-600" },
-            ].map(({ role, email, password, color }) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => { form.setValue("email", email); form.setValue("password", password); }}
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
-              >
-                <span className={`text-xs font-bold w-16 ${color}`}>{role}</span>
-                <span className="text-xs text-muted-foreground font-mono flex-1">{email}</span>
-                <span className="text-xs text-[#0d1b3e] dark:text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">Use →</span>
-              </button>
-            ))}
+          {/* Admin credentials only */}
+          <div className="rounded-xl border border-dashed border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-4 space-y-2">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Shield className="h-3.5 w-3.5 text-amber-600" />
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Admin Access</p>
+            </div>
+            <button type="button"
+              onClick={() => { form.setValue("email", "admin@travelportal.com"); form.setValue("password", "admin123"); }}
+              className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors text-left group border border-amber-200/40">
+              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 w-14">Admin</span>
+              <span className="text-xs text-muted-foreground font-mono flex-1">admin@travelportal.com</span>
+              <span className="text-xs text-[#0d1b3e] dark:text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">Use →</span>
+            </button>
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-[#0d1b3e] dark:text-primary font-semibold hover:underline">
-              Sign up free
-            </Link>
+            <Link href="/signup" className="text-[#0d1b3e] dark:text-primary font-semibold hover:underline">Sign up free</Link>
           </p>
         </div>
       </div>

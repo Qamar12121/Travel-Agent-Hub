@@ -22,7 +22,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Users, Plane, Package, BarChart3, Shield, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
+import {
+  Users, Plane, Package, BarChart3, Shield, Plus, Pencil, Trash2, CheckCircle,
+  CreditCard, TrendingUp, TrendingDown, DollarSign, Wallet,
+} from "lucide-react";
 
 function statusBadge(status: string) {
   const map: Record<string, string> = {
@@ -36,15 +39,10 @@ function statusBadge(status: string) {
 
 const API_BASE = "/api";
 const getToken = () => localStorage.getItem("token");
-
 async function apiFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-      ...(options.headers ?? {}),
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}`, ...(options.headers ?? {}) },
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
@@ -54,7 +52,7 @@ interface PackageFormData {
   name: string; duration: string; type: string; price: string; hotel: string;
   hotelRating: string; airline: string; departureDate: string; returnDate: string;
   seatsAvailable: string; description: string; makkahNights: string; madinahNights: string;
-  inclusions: string;
+  makkahHotel: string; madinahHotel: string; inclusions: string;
 }
 
 interface FlightFormData {
@@ -67,7 +65,8 @@ interface FlightFormData {
 const EMPTY_PKG: PackageFormData = {
   name: "", duration: "21", type: "umrah", price: "", hotel: "", hotelRating: "4",
   airline: "", departureDate: "", returnDate: "", seatsAvailable: "30",
-  description: "", makkahNights: "14", madinahNights: "7", inclusions: "",
+  description: "", makkahNights: "14", madinahNights: "7",
+  makkahHotel: "", madinahHotel: "", inclusions: "",
 };
 
 const EMPTY_FLIGHT: FlightFormData = {
@@ -86,19 +85,13 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    try {
-      await onSave(form);
-      toast({ title: "Package saved successfully" });
-      onClose();
-    } catch {
-      toast({ title: "Failed to save package", variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
+    try { await onSave(form); toast({ title: "Package saved successfully" }); onClose(); }
+    catch { toast({ title: "Failed to save package", variant: "destructive" }); }
+    finally { setSaving(false); }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[72vh] overflow-y-auto pr-1">
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2 space-y-1">
           <Label className="text-xs font-semibold">Package Name *</Label>
@@ -109,9 +102,9 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
           <Select value={form.duration} onValueChange={v => setForm(f => ({ ...f, duration: v }))}>
             <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
+              <SelectItem value="14">14 Days</SelectItem>
               <SelectItem value="21">21 Days</SelectItem>
               <SelectItem value="28">28 Days</SelectItem>
-              <SelectItem value="14">14 Days</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -134,9 +127,14 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
           <Label className="text-xs font-semibold">Seats Available</Label>
           <Input value={form.seatsAvailable} onChange={set("seatsAvailable")} type="number" className="h-9" />
         </div>
+
+        {/* Hotel info */}
+        <div className="col-span-2">
+          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 pt-1 border-t">Hotel Details</div>
+        </div>
         <div className="space-y-1">
-          <Label className="text-xs font-semibold">Hotel Name *</Label>
-          <Input value={form.hotel} onChange={set("hotel")} placeholder="Hilton Makkah" required className="h-9" />
+          <Label className="text-xs font-semibold">Hotel Name (General) *</Label>
+          <Input value={form.hotel} onChange={set("hotel")} placeholder="e.g. Hilton Tower" required className="h-9" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs font-semibold">Hotel Rating (Stars)</Label>
@@ -148,16 +146,21 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
           </Select>
         </div>
         <div className="space-y-1">
+          <Label className="text-xs font-semibold">Makkah Hotel</Label>
+          <Input value={form.makkahHotel} onChange={set("makkahHotel")} placeholder="Hilton Makkah Convention" className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Madinah Hotel</Label>
+          <Input value={form.madinahHotel} onChange={set("madinahHotel")} placeholder="Anwar Al Madinah Mövenpick" className="h-9" />
+        </div>
+
+        {/* Travel info */}
+        <div className="col-span-2">
+          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 pt-1 border-t">Travel Details</div>
+        </div>
+        <div className="space-y-1">
           <Label className="text-xs font-semibold">Airline *</Label>
           <Input value={form.airline} onChange={set("airline")} placeholder="PIA / Air Arabia" required className="h-9" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-semibold">Departure Date *</Label>
-          <Input value={form.departureDate} onChange={set("departureDate")} type="date" required className="h-9" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-semibold">Return Date *</Label>
-          <Input value={form.returnDate} onChange={set("returnDate")} type="date" required className="h-9" />
         </div>
         <div className="space-y-1">
           <Label className="text-xs font-semibold">Makkah Nights</Label>
@@ -166,6 +169,14 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
         <div className="space-y-1">
           <Label className="text-xs font-semibold">Madinah Nights</Label>
           <Input value={form.madinahNights} onChange={set("madinahNights")} type="number" className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Departure Date *</Label>
+          <Input value={form.departureDate} onChange={set("departureDate")} type="date" required className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold">Return Date *</Label>
+          <Input value={form.returnDate} onChange={set("returnDate")} type="date" required className="h-9" />
         </div>
         <div className="col-span-2 space-y-1">
           <Label className="text-xs font-semibold">Description</Label>
@@ -178,7 +189,7 @@ function PackageForm({ initial, onSave, onClose }: { initial?: PackageFormData; 
       </div>
       <div className="flex gap-2 pt-2">
         <Button type="submit" className="flex-1 bg-[#0d1b3e] text-white" disabled={saving}>
-          {saving ? "Saving..." : <><CheckCircle className="h-4 w-4 mr-1" /> Save Package</>}
+          {saving ? "Saving..." : <><CheckCircle className="h-4 w-4 mr-1" />Save Package</>}
         </Button>
         <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
       </div>
@@ -193,17 +204,10 @@ function FlightForm({ initial, onSave, onClose }: { initial?: FlightFormData; on
   const set = (k: keyof FlightFormData) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      await onSave(form);
-      toast({ title: "Flight saved successfully" });
-      onClose();
-    } catch {
-      toast({ title: "Failed to save flight", variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
+    e.preventDefault(); setSaving(true);
+    try { await onSave(form); toast({ title: "Flight saved successfully" }); onClose(); }
+    catch { toast({ title: "Failed to save flight", variant: "destructive" }); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -291,7 +295,7 @@ function FlightForm({ initial, onSave, onClose }: { initial?: FlightFormData; on
       </div>
       <div className="flex gap-2 pt-2">
         <Button type="submit" className="flex-1 bg-[#0d1b3e] text-white" disabled={saving}>
-          {saving ? "Saving..." : <><CheckCircle className="h-4 w-4 mr-1" /> Save Flight</>}
+          {saving ? "Saving..." : <><CheckCircle className="h-4 w-4 mr-1" />Save Flight</>}
         </Button>
         <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
       </div>
@@ -312,6 +316,18 @@ export default function Admin() {
   const [flights, setFlights] = useState<any[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(true);
 
+  const [addPaymentUser, setAddPaymentUser] = useState<{ id: number; name: string; balance: number } | null>(null);
+  const [paymentForm, setPaymentForm] = useState({ amount: "", type: "credit", description: "" });
+  const [savingPayment, setSavingPayment] = useState(false);
+
+  const [ledgerUserId, setLedgerUserId] = useState<number | null>(null);
+  const [ledgerEntries, setLedgerEntries] = useState<any[]>([]);
+  const [ledgerSummary, setLedgerSummary] = useState<{ totalCredit: number; totalDebit: number; currentBalance: number } | null>(null);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
+  const [addLedgerOpen, setAddLedgerOpen] = useState(false);
+  const [ledgerForm, setLedgerForm] = useState({ type: "credit", amount: "", description: "" });
+  const [savingLedger, setSavingLedger] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) setLocation("/login");
     if (!authLoading && isAuthenticated && user?.role !== "admin") setLocation("/dashboard");
@@ -324,6 +340,62 @@ export default function Admin() {
   const refreshFlights = () => {
     setFlightsLoading(true);
     apiFetch("/flights/all-groups").then(setFlights).finally(() => setFlightsLoading(false));
+  };
+
+  const fetchLedger = (uid: number) => {
+    setLedgerLoading(true);
+    Promise.all([
+      apiFetch(`/ledger?userId=${uid}`),
+      apiFetch(`/ledger/summary?userId=${uid}`),
+    ]).then(([e, s]) => { setLedgerEntries(e); setLedgerSummary(s); }).finally(() => setLedgerLoading(false));
+  };
+
+  const handleLedgerUserChange = (uid: number) => {
+    setLedgerUserId(uid);
+    fetchLedger(uid);
+  };
+
+  const addLedgerEntry = async () => {
+    if (!ledgerUserId || !ledgerForm.amount || !ledgerForm.description) return;
+    setSavingLedger(true);
+    try {
+      await apiFetch("/ledger", {
+        method: "POST",
+        body: JSON.stringify({ userId: ledgerUserId, type: ledgerForm.type, amount: parseFloat(ledgerForm.amount), description: ledgerForm.description }),
+      });
+      toast({ title: "Entry added successfully" });
+      setAddLedgerOpen(false);
+      setLedgerForm({ type: "credit", amount: "", description: "" });
+      fetchLedger(ledgerUserId);
+      queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
+    } catch {
+      toast({ title: "Failed to add entry", variant: "destructive" });
+    } finally { setSavingLedger(false); }
+  };
+
+  const deleteLedgerEntry = async (id: number) => {
+    if (!confirm("Delete this ledger entry?")) return;
+    try {
+      await apiFetch(`/ledger/${id}`, { method: "DELETE" });
+      toast({ title: "Entry deleted" });
+      if (ledgerUserId) fetchLedger(ledgerUserId);
+    } catch { toast({ title: "Failed to delete", variant: "destructive" }); }
+  };
+
+  const addPayment = async () => {
+    if (!addPaymentUser || !paymentForm.amount || !paymentForm.description) return;
+    setSavingPayment(true);
+    try {
+      await apiFetch("/ledger", {
+        method: "POST",
+        body: JSON.stringify({ userId: addPaymentUser.id, type: paymentForm.type, amount: parseFloat(paymentForm.amount), description: paymentForm.description }),
+      });
+      toast({ title: `Payment added to ${addPaymentUser.name}` });
+      setAddPaymentUser(null);
+      setPaymentForm({ amount: "", type: "credit", description: "" });
+      queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
+    } catch { toast({ title: "Failed to add payment", variant: "destructive" }); }
+    finally { setSavingPayment(false); }
   };
 
   const { data: adminStats, isLoading: statsLoading } = useGetAdminStats({ query: { queryKey: getGetAdminStatsQueryKey() } });
@@ -348,6 +420,8 @@ export default function Admin() {
       airline: form.airline, departureDate: form.departureDate, returnDate: form.returnDate,
       seatsAvailable: parseInt(form.seatsAvailable), description: form.description,
       makkahNights: parseInt(form.makkahNights), madinahNights: parseInt(form.madinahNights),
+      makkahHotel: form.makkahHotel || undefined,
+      madinahHotel: form.madinahHotel || undefined,
       inclusions: form.inclusions.split("\n").filter(Boolean),
     };
     if (id) {
@@ -387,11 +461,8 @@ export default function Admin() {
 
   const deleteFlight = async (id: number) => {
     if (!confirm("Delete this flight group?")) return;
-    try {
-      await apiFetch(`/flights/${id}`, { method: "DELETE" });
-      refreshFlights();
-      toast({ title: "Flight deleted" });
-    } catch { toast({ title: "Failed to delete", variant: "destructive" }); }
+    try { await apiFetch(`/flights/${id}`, { method: "DELETE" }); refreshFlights(); toast({ title: "Flight deleted" }); }
+    catch { toast({ title: "Failed to delete", variant: "destructive" }); }
   };
 
   const flightTypeBadge = (type: string) => {
@@ -449,6 +520,9 @@ export default function Admin() {
             <TabsTrigger value="users" className="flex items-center gap-1.5">
               <Users className="h-4 w-4" /> Users
             </TabsTrigger>
+            <TabsTrigger value="ledger" className="flex items-center gap-1.5">
+              <CreditCard className="h-4 w-4" /> Ledger
+            </TabsTrigger>
             <TabsTrigger value="agents">Agents</TabsTrigger>
             <TabsTrigger value="bookings">All Bookings</TabsTrigger>
             <TabsTrigger value="performance">
@@ -456,7 +530,7 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
 
-          {/* ── PACKAGES TAB ─────────────────────────────────────── */}
+          {/* ── PACKAGES TAB ─────────────────────────────────────────── */}
           <TabsContent value="packages">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -480,7 +554,8 @@ export default function Admin() {
                       <tr className="border-b bg-muted/30">
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Package</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Duration</th>
-                        <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Hotel</th>
+                        <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Makkah Hotel</th>
+                        <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Madinah Hotel</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Airline</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Price</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Seats</th>
@@ -490,12 +565,17 @@ export default function Admin() {
                     </thead>
                     <tbody>
                       {packagesLoading ? Array.from({ length: 5 }).map((_, i) => (
-                        <tr key={i} className="border-b"><td colSpan={8} className="px-4 py-3"><Skeleton className="h-4 w-full" /></td></tr>
+                        <tr key={i} className="border-b"><td colSpan={9} className="px-4 py-3"><Skeleton className="h-4 w-full" /></td></tr>
                       )) : packages?.map(p => (
                         <tr key={p.id} className="border-b hover:bg-muted/20 transition-colors">
-                          <td className="px-4 py-3 font-semibold max-w-[160px] truncate">{p.name}</td>
+                          <td className="px-4 py-3 font-semibold max-w-[140px] truncate">{p.name}</td>
                           <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{p.duration} Days</Badge></td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground max-w-[120px] truncate">{p.hotel}</td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground max-w-[120px] truncate">
+                            {(p as Record<string, unknown>).makkahHotel as string || p.hotel || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground max-w-[120px] truncate">
+                            {(p as Record<string, unknown>).madinahHotel as string || "—"}
+                          </td>
                           <td className="px-4 py-3 text-xs">{p.airline}</td>
                           <td className="px-4 py-3 font-bold text-[#0d1b3e] text-xs">PKR {Number(p.price).toLocaleString()}</td>
                           <td className="px-4 py-3 text-xs">{p.seatsAvailable}</td>
@@ -512,6 +592,8 @@ export default function Admin() {
                                       airline: p.airline, departureDate: p.departureDate, returnDate: p.returnDate,
                                       seatsAvailable: String(p.seatsAvailable), description: p.description ?? "",
                                       makkahNights: String(p.makkahNights ?? 14), madinahNights: String(p.madinahNights ?? 7),
+                                      makkahHotel: ((p as Record<string, unknown>).makkahHotel as string) ?? "",
+                                      madinahHotel: ((p as Record<string, unknown>).madinahHotel as string) ?? "",
                                       inclusions: (p.inclusions as string[] ?? []).join("\n"),
                                     }
                                   })}>
@@ -632,6 +714,7 @@ export default function Admin() {
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Name</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Email</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Role</th>
+                        <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Balance</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Status</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Joined</th>
                         <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Actions</th>
@@ -639,7 +722,7 @@ export default function Admin() {
                     </thead>
                     <tbody>
                       {usersLoading ? Array.from({ length: 5 }).map((_, i) => (
-                        <tr key={i} className="border-b"><td colSpan={7} className="px-4 py-3"><Skeleton className="h-4 w-full" /></td></tr>
+                        <tr key={i} className="border-b"><td colSpan={8} className="px-4 py-3"><Skeleton className="h-4 w-full" /></td></tr>
                       )) : users?.map(u => (
                         <tr key={u.id} className="border-b hover:bg-muted/20 transition-colors">
                           <td className="px-4 py-3 text-xs text-muted-foreground">#{u.id}</td>
@@ -648,6 +731,9 @@ export default function Admin() {
                           <td className="px-4 py-3">
                             <Badge variant="outline" className="capitalize text-xs">{u.role}</Badge>
                           </td>
+                          <td className="px-4 py-3 text-xs font-semibold">
+                            PKR {Number(u.balance ?? 0).toLocaleString()}
+                          </td>
                           <td className="px-4 py-3">
                             <Badge className={`text-xs border-0 ${u.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                               {u.isActive ? "Active" : "Inactive"}
@@ -655,9 +741,15 @@ export default function Admin() {
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(u.createdAt).toLocaleDateString()}</td>
                           <td className="px-4 py-3">
-                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => toggleActive(u.id, u.isActive)}>
-                              {u.isActive ? "Deactivate" : "Activate"}
-                            </Button>
+                            <div className="flex gap-1 flex-wrap">
+                              <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => toggleActive(u.id, u.isActive)}>
+                                {u.isActive ? "Deactivate" : "Activate"}
+                              </Button>
+                              <Button variant="outline" size="sm" className="h-7 text-xs text-green-600 border-green-200 hover:bg-green-50"
+                                onClick={() => { setAddPaymentUser({ id: u.id, name: u.name, balance: Number(u.balance ?? 0) }); setPaymentForm({ amount: "", type: "credit", description: "" }); }}>
+                                <Wallet className="h-3 w-3 mr-1" /> Payment
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -666,6 +758,170 @@ export default function Admin() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ── LEDGER TAB ─────────────────────────────────────────── */}
+          <TabsContent value="ledger">
+            <div className="space-y-4">
+              {/* User selector */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <CardTitle className="text-base">Ledger Management</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={ledgerUserId ? String(ledgerUserId) : ""}
+                        onValueChange={v => handleLedgerUserChange(Number(v))}
+                      >
+                        <SelectTrigger className="w-56 h-9">
+                          <SelectValue placeholder="Select user..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users?.map(u => (
+                            <SelectItem key={u.id} value={String(u.id)}>
+                              {u.name} ({u.role}) — PKR {Number(u.balance ?? 0).toLocaleString()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {ledgerUserId && (
+                        <Dialog open={addLedgerOpen} onOpenChange={setAddLedgerOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" className="bg-[#0d1b3e] text-white hover:bg-[#1a3a7c] h-9">
+                              <Plus className="h-4 w-4 mr-1" /> Add Entry
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-sm">
+                            <DialogHeader><DialogTitle>Add Ledger Entry</DialogTitle></DialogHeader>
+                            <div className="space-y-4 pt-2">
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Type</Label>
+                                <Select value={ledgerForm.type} onValueChange={v => setLedgerForm(f => ({ ...f, type: v }))}>
+                                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="credit">Credit (Money In)</SelectItem>
+                                    <SelectItem value="debit">Debit (Money Out)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Amount (PKR) *</Label>
+                                <Input type="number" value={ledgerForm.amount}
+                                  onChange={e => setLedgerForm(f => ({ ...f, amount: e.target.value }))}
+                                  placeholder="50000" className="h-9" />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Description *</Label>
+                                <Input value={ledgerForm.description}
+                                  onChange={e => setLedgerForm(f => ({ ...f, description: e.target.value }))}
+                                  placeholder="Payment received / booking charge" className="h-9" />
+                              </div>
+                              <Button onClick={addLedgerEntry} disabled={savingLedger || !ledgerForm.amount || !ledgerForm.description}
+                                className="w-full bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white">
+                                {savingLedger ? "Adding..." : "Add Entry"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              {ledgerUserId && (
+                <>
+                  {/* Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <Card className="border-l-4 border-l-green-500">
+                      <CardHeader className="flex flex-row items-center justify-between pb-1 pt-3 px-4">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">Total Credit</CardTitle>
+                        <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                      </CardHeader>
+                      <CardContent className="px-4 pb-3">
+                        <div className="text-base font-bold text-green-600">{fmt(ledgerSummary?.totalCredit ?? 0)}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-l-4 border-l-red-500">
+                      <CardHeader className="flex flex-row items-center justify-between pb-1 pt-3 px-4">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">Total Debit</CardTitle>
+                        <TrendingDown className="h-3.5 w-3.5 text-red-500" />
+                      </CardHeader>
+                      <CardContent className="px-4 pb-3">
+                        <div className="text-base font-bold text-red-600">{fmt(ledgerSummary?.totalDebit ?? 0)}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-l-4 border-l-primary">
+                      <CardHeader className="flex flex-row items-center justify-between pb-1 pt-3 px-4">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">Balance</CardTitle>
+                        <DollarSign className="h-3.5 w-3.5 text-primary" />
+                      </CardHeader>
+                      <CardContent className="px-4 pb-3">
+                        <div className={`text-base font-bold ${(ledgerSummary?.currentBalance ?? 0) >= 0 ? "text-primary" : "text-destructive"}`}>
+                          {fmt(ledgerSummary?.currentBalance ?? 0)}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Entries table */}
+                  <Card>
+                    <CardHeader><CardTitle className="text-sm">Transaction History</CardTitle></CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-muted/30">
+                              <th className="px-4 py-2 text-left text-xs font-semibold text-muted-foreground">#</th>
+                              <th className="px-4 py-2 text-left text-xs font-semibold text-muted-foreground">Date</th>
+                              <th className="px-4 py-2 text-left text-xs font-semibold text-muted-foreground">Description</th>
+                              <th className="px-4 py-2 text-right text-xs font-semibold text-muted-foreground">Credit</th>
+                              <th className="px-4 py-2 text-right text-xs font-semibold text-muted-foreground">Debit</th>
+                              <th className="px-4 py-2 text-right text-xs font-semibold text-muted-foreground">Balance</th>
+                              <th className="px-4 py-2 text-left text-xs font-semibold text-muted-foreground">Del</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {ledgerLoading ? (
+                              Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i} className="border-b"><td colSpan={7} className="px-4 py-2"><Skeleton className="h-4 w-full" /></td></tr>
+                              ))
+                            ) : ledgerEntries.length === 0 ? (
+                              <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground text-sm">No ledger entries for this user</td></tr>
+                            ) : ledgerEntries.map((e: any, i: number) => (
+                              <tr key={e.id} className="border-b hover:bg-muted/20 text-xs">
+                                <td className="px-4 py-2 text-muted-foreground">{i + 1}</td>
+                                <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">{new Date(e.createdAt).toLocaleDateString()}</td>
+                                <td className="px-4 py-2 font-medium max-w-[200px] truncate">{e.description}</td>
+                                <td className="px-4 py-2 text-right">
+                                  {e.type === "credit" ? <span className="text-green-600 font-semibold">{fmt(e.amount)}</span> : "—"}
+                                </td>
+                                <td className="px-4 py-2 text-right">
+                                  {e.type === "debit" ? <span className="text-red-600 font-semibold">{fmt(e.amount)}</span> : "—"}
+                                </td>
+                                <td className="px-4 py-2 text-right font-bold">{fmt(e.balance)}</td>
+                                <td className="px-4 py-2">
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-destructive hover:text-destructive" onClick={() => deleteLedgerEntry(e.id)}>
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+
+              {!ledgerUserId && (
+                <div className="text-center py-16 text-muted-foreground">
+                  <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <div className="text-sm">Select a user above to view or manage their ledger</div>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           {/* ── AGENTS TAB ─────────────────────────────────────────── */}
@@ -795,6 +1051,52 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* ── ADD PAYMENT DIALOG ─────────────────────────────────────── */}
+      <Dialog open={!!addPaymentUser} onOpenChange={open => !open && setAddPaymentUser(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-green-600" /> Add Payment
+            </DialogTitle>
+          </DialogHeader>
+          {addPaymentUser && (
+            <div className="space-y-4 pt-2">
+              <div className="rounded-lg bg-muted/40 p-3 text-sm">
+                <div className="font-semibold">{addPaymentUser.name}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Current balance: <span className="font-semibold">PKR {addPaymentUser.balance.toLocaleString()}</span>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Transaction Type</Label>
+                <Select value={paymentForm.type} onValueChange={v => setPaymentForm(f => ({ ...f, type: v }))}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="credit">Credit — Add Funds</SelectItem>
+                    <SelectItem value="debit">Debit — Deduct Funds</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Amount (PKR) *</Label>
+                <Input type="number" value={paymentForm.amount} onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))} placeholder="50000" className="h-9" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Description *</Label>
+                <Input value={paymentForm.description} onChange={e => setPaymentForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Package payment received" className="h-9" />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={addPayment} disabled={savingPayment || !paymentForm.amount || !paymentForm.description}
+                  className="flex-1 bg-[#0d1b3e] hover:bg-[#1a3a7c] text-white">
+                  {savingPayment ? "Processing..." : "Confirm Payment"}
+                </Button>
+                <Button variant="outline" onClick={() => setAddPaymentUser(null)} className="flex-1">Cancel</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

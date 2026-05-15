@@ -13,6 +13,8 @@ export const usersTable = pgTable("users", {
   address: text("address"),
   balance: numeric("balance", { precision: 12, scale: 2 }).default("0"),
   isActive: boolean("is_active").notNull().default(true),
+  profilePic: text("profile_pic"),
+  agencyLogo: text("agency_logo"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

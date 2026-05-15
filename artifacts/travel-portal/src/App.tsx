@@ -11,6 +11,7 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Dashboard from "@/pages/Dashboard";
+import Profile from "@/pages/Profile";
 import UmrahPackages from "@/pages/UmrahPackages";
 import PackageDetail from "@/pages/PackageDetail";
 import { FlightGroupsList } from "@/pages/FlightGroups";
@@ -25,12 +26,7 @@ import AgentDashboard from "@/pages/AgentDashboard";
 import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30000,
-    },
-  },
+  defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
 });
 
 function Router() {
@@ -41,47 +37,28 @@ function Router() {
       <Route path="/signup" component={Signup} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/profile" component={Profile} />
 
-      {/* Umrah Packages */}
       <Route path="/umrah-packages" component={UmrahPackages} />
       <Route path="/umrah-packages/:id" component={PackageDetail} />
 
-      {/* Flight Groups */}
-      <Route path="/ksa-groups">
-        {() => <FlightGroupsList type="ksa" />}
-      </Route>
-      <Route path="/ksa-groups/:id">
-        {() => <FlightDetail type="ksa" />}
-      </Route>
-      <Route path="/uae-groups">
-        {() => <FlightGroupsList type="uae" />}
-      </Route>
-      <Route path="/uae-groups/:id">
-        {() => <FlightDetail type="uae" />}
-      </Route>
-      <Route path="/all-groups">
-        {() => <FlightGroupsList type="all" />}
-      </Route>
-      <Route path="/umrah-tickets">
-        {() => <FlightGroupsList type="umrah" />}
-      </Route>
-      <Route path="/umrah-tickets/:id">
-        {() => <FlightDetail type="ksa" />}
-      </Route>
+      <Route path="/ksa-groups">{() => <FlightGroupsList type="ksa" />}</Route>
+      <Route path="/ksa-groups/:id">{() => <FlightDetail type="ksa" />}</Route>
+      <Route path="/uae-groups">{() => <FlightGroupsList type="uae" />}</Route>
+      <Route path="/uae-groups/:id">{() => <FlightDetail type="uae" />}</Route>
+      <Route path="/all-groups">{() => <FlightGroupsList type="all" />}</Route>
+      <Route path="/umrah-tickets">{() => <FlightGroupsList type="umrah" />}</Route>
+      <Route path="/umrah-tickets/:id">{() => <FlightDetail type="ksa" />}</Route>
 
-      {/* Bookings */}
       <Route path="/bookings" component={Bookings} />
       <Route path="/bookings/:id" component={BookingDetail} />
 
-      {/* E-Ticket & Hotel Voucher */}
       <Route path="/eticket/:bookingId" component={ETicket} />
       <Route path="/hotel-voucher/:bookingId" component={HotelVoucher} />
 
-      {/* Finance */}
       <Route path="/banks" component={Banks} />
       <Route path="/ledger" component={Ledger} />
 
-      {/* Agent & Admin */}
       <Route path="/agent-dashboard" component={AgentDashboard} />
       <Route path="/admin" component={Admin} />
 
